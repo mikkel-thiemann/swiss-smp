@@ -48,8 +48,16 @@
     text-align: center;
   }
 
+
+  .wappen {
+    width: clamp(120px, 22vw, 190px);
+    height: auto;
+    margin-top: 22px;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+  }
+
   .server-box {
-    margin-top: 26px;
+    margin-top: 20px;
     background: rgba(20, 20, 20, 0.75);
     border: 4px solid #6b4a25;
     border-radius: 6px;
@@ -71,7 +79,7 @@
   }
 
   .knopf {
-    margin-top: 34px;
+    margin-top: 26px;
     padding: 18px 44px;
     font-size: clamp(17px, 3vw, 24px);
     font-family: inherit;
@@ -165,6 +173,14 @@
 
   <h1>SwissSMP</h1>
   <p class="untertitel">Der Schweizer Minecraft Survival-Server 🇨🇭</p>
+
+  <svg class="wappen" viewBox="0 0 72 80" aria-label="Schweizer Wappen">
+    <path d="M6 5 H66 V42 Q66 64 36 76 Q6 64 6 42 Z" fill="#c9a227"/>
+    <path d="M11 10 H61 V41 Q61 60 36 70 Q11 60 11 41 Z" fill="#9a9a9a"/>
+    <path d="M15 14 H57 V41 Q57 57 36 66 Q15 57 15 41 Z" fill="#c8102e"/>
+    <rect x="31" y="24" width="10" height="30" fill="#fff"/>
+    <rect x="21" y="34" width="30" height="10" fill="#fff"/>
+  </svg>
 
   <div class="server-box">
     <div class="ip">SwissSMP.axenthost.me</div>
