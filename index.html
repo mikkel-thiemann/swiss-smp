@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwissSMP</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    color: #fff;
+    /* Fallback-Hintergrund (Alpen-Look), falls hintergrund.png fehlt */
+    background:
+      url("hintergrund.png") center / cover no-repeat fixed,
+      linear-gradient(180deg, #cfe3f2 0%, #8fb4cf 45%, #4a6b86 100%) fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 60px;
+  }
+
+  /* Dunkler Schleier, damit Text lesbar bleibt */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: -1;
+  }
+
+  h1 {
+    font-size: clamp(40px, 9vw, 90px);
+    letter-spacing: 3px;
+    color: #ffd75e;
+    text-shadow:
+      4px 4px 0 #7a5a00,
+      0 0 24px rgba(0, 0, 0, 0.8);
+    text-align: center;
+  }
+
+  .untertitel {
+    margin-top: 10px;
+    font-size: clamp(15px, 2.5vw, 20px);
+    text-shadow: 2px 2px 0 #000;
+    text-align: center;
+  }
+
+  .server-box {
+    margin-top: 26px;
+    background: rgba(20, 20, 20, 0.75);
+    border: 4px solid #6b4a25;
+    border-radius: 6px;
+    padding: 16px 26px;
+    text-align: center;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  .server-box .ip {
+    font-size: clamp(18px, 3.5vw, 28px);
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .server-box .port {
+    margin-top: 6px;
+    font-size: clamp(15px, 2.5vw, 22px);
+    color: #6fd0ff;
+  }
+
+  .knopf {
+    margin-top: 34px;
+    padding: 18px 44px;
+    font-size: clamp(17px, 3vw, 24px);
+    font-family: inherit;
+    font-weight: bold;
+    color: #fff;
+    background: #4a8f3c;
+    border: 4px solid #2c5a22;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #22461a;
+    transition: transform 0.08s, background 0.15s;
+  }
+
+  .knopf:hover { background: #58a847; }
+  .knopf:active { transform: translateY(5px); box-shadow: 0 1px 0 #22461a; }
+
+  /* Info-Bereich */
+  #infos {
+    display: none;
+    margin-top: 36px;
+    width: min(900px, 100%);
+    background: rgba(15, 15, 18, 0.88);
+    border: 4px solid #555;
+    border-radius: 8px;
+    padding: 28px 30px 34px;
+    line-height: 1.65;
+  }
+
+  #infos.offen { display: block; }
+
+  #infos h2 {
+    color: #ffd75e;
+    font-size: 30px;
+    margin-bottom: 6px;
+  }
+
+  #infos h3 {
+    color: #7bd35f;
+    font-size: 21px;
+    margin: 26px 0 8px;
+    border-bottom: 2px solid #3a3a3a;
+    padding-bottom: 5px;
+  }
+
+  #infos p, #infos li { font-size: 16px; color: #e6e6e6; }
+  #infos ul { margin: 8px 0 0 22px; }
+  #infos li { margin-bottom: 6px; }
+
+  .tabelle {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .tabelle th, .tabelle td {
+    border: 2px solid #444;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 15px;
+  }
+
+  .tabelle th { background: #2b2b30; color: #ffd75e; }
+  .tabelle td { color: #e6e6e6; }
+
+  footer {
+    margin-top: 40px;
+    font-size: 14px;
+    text-shadow: 2px 2px 0 #000;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+  <h1>SwissSMP</h1>
+  <p class="untertitel">Der Schweizer Minecraft Survival-Server 🇨🇭</p>
+
+  <div class="server-box">
+    <div class="ip">SwissSMP.axenthost.me</div>
+    <div class="port">Port: 49212</div>
+  </div>
+
+  <button class="knopf" onclick="infosZeigen()">Minecraft Infos</button>
+
+  <section id="infos">
+    <h2>Alles über Minecraft</h2>
+    <p>Minecraft ist ein Sandbox-Spiel, in dem die ganze Welt aus Blöcken besteht.
+       Du kannst jeden Block abbauen und überall wieder setzen – daraus entsteht alles,
+       von einer kleinen Erdhütte bis zu riesigen Städten und Maschinen.</p>
+
+    <h3>Die Fakten</h3>
+    <table class="tabelle">
+      <tr><th>Entwickler</th><td>Elia und Jaromir</td></tr>
+      <tr><th>Erschaffer der Webseite</th><td>Mikkel</td></tr>
+      <tr><th>Erfinder</th><td>Markus "Notch" Persson</td></tr>
+      <tr><th>Erscheinung</th><td>Erste Version 2009, Vollversion 18. November 2011</td></tr>
+      <tr><th>Editionen</th><td>Java Edition (PC) und Bedrock Edition (Konsole, Handy, Windows)</td></tr>
+      <tr><th>Plattformen</th><td>PC, Mac, Linux, Xbox, PlayStation, Switch, Android, iOS</td></tr>
+      <tr><th>Besonderheit</th><td>Das meistverkaufte Videospiel aller Zeiten (über 300 Mio. Kopien)</td></tr>
+    </table>
+
+    <h3>Die Spielmodi</h3>
+    <ul>
+      <li><b>Survival</b> – Rohstoffe sammeln, Leben und Hunger beachten, gegen Monster kämpfen. Das spielen wir auf dem SwissSMP.</li>
+      <li><b>Kreativ</b> – Unendlich Blöcke, fliegen, kein Schaden. Perfekt zum Bauen.</li>
+      <li><b>Abenteuer</b> – Für selbstgebaute Maps: Blöcke nur mit dem passenden Werkzeug.</li>
+      <li><b>Hardcore</b> – Survival auf höchster Schwierigkeit, nur ein Leben.</li>
+      <li><b>Zuschauer</b> – Unsichtbar durch die Welt und durch Blöcke fliegen.</li>
+    </ul>
+
+    <h3>Die drei Dimensionen</h3>
+    <ul>
+      <li><b>Oberwelt</b> – Die normale Welt mit Wäldern, Bergen, Ozeanen, Wüsten und Dörfern.</li>
+      <li><b>Nether</b> – Die Höllen-Dimension. Man kommt mit einem Obsidian-Portal hin und findet dort Netherit, Blazes und Festungen.</li>
+      <li><b>Ende</b> – Die letzte Dimension mit dem Enderdrachen, dem Endboss des Spiels.</li>
+    </ul>
+
+    <h3>Wichtige Blöcke &amp; Materialien</h3>
+    <ul>
+      <li><b>Holz</b> – Der Anfang von allem: Bretter, Werkbank, Werkzeuge.</li>
+      <li><b>Stein &amp; Kohle</b> – Bessere Werkzeuge, Öfen und Fackeln.</li>
+      <li><b>Eisen</b> – Rüstung, Eimer, Amboss, Redstone-Technik.</li>
+      <li><b>Diamant</b> – Sehr starke Werkzeuge und Rüstung, tief unten in der Welt.</li>
+      <li><b>Netherit</b> – Das stärkste Material, wird aus Alt-Trümmern im Nether hergestellt.</li>
+      <li><b>Redstone</b> – Der "Strom" von Minecraft: damit baut man Türen, Fallen und ganze Maschinen.</li>
+    </ul>
+
+    <h3>Bekannte Mobs</h3>
+    <ul>
+      <li><b>Freundlich:</b> Kuh, Schwein, Schaf, Huhn, Wolf, Katze, Dorfbewohner, Axolotl.</li>
+      <li><b>Feindlich:</b> Zombie, Skelett, Spinne, Enderman und der Creeper, der explodiert.</li>
+      <li><b>Bosse:</b> Enderdrache im Ende und der Wither, den man selbst beschwören muss.</li>
+    </ul>
+
+    <h3>Tipps für den Anfang</h3>
+    <ul>
+      <li>Am ersten Tag Holz sammeln und eine Werkbank bauen.</li>
+      <li>Vor der Nacht ein Haus oder eine Höhle mit Tür haben – und Fackeln setzen.</li>
+      <li>Ein Bett bauen: Damit überspringst du die Nacht und setzt deinen Spawnpunkt.</li>
+      <li>Beim Graben nie direkt nach unten – du fällst sonst in Lava.</li>
+      <li>Eine Kiste als Lager anlegen, damit du bei einem Tod nicht alles verlierst.</li>
+      <li>Verzauberungstisch bauen, sobald du Diamanten und Obsidian hast.</li>
+    </ul>
+
+    <h3>Was ist ein SMP?</h3>
+    <p>SMP heisst <b>Survival Multiplayer</b>. Alle Spieler sind zusammen in derselben
+       Survival-Welt, bauen gemeinsam, handeln miteinander und starten grosse Projekte.
+       Genau das machen wir auf dem SwissSMP – komm einfach mit der IP oben vorbei!</p>
+  </section>
+
+  <footer>
+    Erschaffer der Webseite: <b>Mikkel</b><br>
+    © 2026 SwissSMP · Kein offizielles Minecraft-Produkt.
+  </footer>
+
+<script>
+  function infosZeigen() {
+    var box = document.getElementById("infos");
+    box.classList.toggle("offen");
+    if (box.classList.contains("offen")) {
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+</script>
+
+</body>
+</html>
