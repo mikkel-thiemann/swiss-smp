@@ -133,27 +133,158 @@
     background: rgba(74, 143, 60, 0.16);
   }
 
+
+  .knopf-crafting {
+    background: #2f6f8f;
+    border-color: #1d4759;
+    box-shadow: 0 6px 0 #143240;
+  }
+
+  .knopf-crafting:hover { background: #3a87ad; }
+  .knopf-crafting:active { box-shadow: 0 1px 0 #143240; }
+
+  .legende {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 4px;
+  }
+
+  .legende span {
+    font-size: 13px;
+    padding: 4px 9px;
+    border-radius: 4px;
+    border: 2px solid rgba(0, 0, 0, 0.45);
+  }
+
+  .rezepte {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 12px;
+  }
+
+  .rezept {
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid #3d3d44;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .rezept .zeile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .raster {
+    display: grid;
+    grid-template-columns: repeat(3, 26px);
+    grid-template-rows: repeat(3, 26px);
+    gap: 3px;
+    background: #2a2a30;
+    padding: 3px;
+    border-radius: 4px;
+  }
+
+  .zelle {
+    background: #1b1b20;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .pfeil { font-size: 20px; color: #ffd75e; }
+
+  .ergebnis {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .ergebnis .anzahl {
+    font-size: 12px;
+    color: #7bd35f;
+    font-weight: bold;
+  }
+
+  .rezept .titel {
+    margin-top: 9px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffd75e;
+  }
+
   /* Info-Bereich */
-  #infos, #regeln {
+  #schleier {
     display: none;
-    margin-top: 36px;
-    width: min(900px, 100%);
-    background: rgba(15, 15, 18, 0.88);
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 15;
+  }
+
+  #schleier.offen { display: block; }
+
+  #infos, #regeln, #crafting {
+    display: none;
+    position: fixed;
+    top: clamp(14px, 4vh, 46px);
+    bottom: clamp(14px, 4vh, 46px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(920px, 94vw);
+    z-index: 20;
+    overflow-y: auto;
+    background: rgba(15, 15, 18, 0.97);
     border: 4px solid #555;
     border-radius: 8px;
-    padding: 28px 30px 34px;
+    padding: 0 clamp(16px, 3vw, 30px) 34px;
     line-height: 1.65;
   }
 
-  #infos.offen, #regeln.offen { display: block; }
+  .kopfzeile {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 0 10px;
+    background: rgba(15, 15, 18, 0.98);
+    z-index: 2;
+  }
 
-  #infos h2, #regeln h2 {
+  .schliessen {
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: #a33a3a;
+    border: 3px solid #6d2323;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #4d1818;
+  }
+
+  .schliessen:hover { background: #bf4747; }
+  .schliessen:active { transform: translateY(3px); box-shadow: 0 1px 0 #4d1818; }
+
+  #infos.offen, #regeln.offen, #crafting.offen { display: block; }
+
+  #infos h2, #regeln h2, #crafting h2 {
     color: #ffd75e;
     font-size: 30px;
     margin-bottom: 6px;
   }
 
-  #infos h3, #regeln h3 {
+  #infos h3, #regeln h3, #crafting h3 {
     color: #7bd35f;
     font-size: 21px;
     margin: 26px 0 8px;
@@ -161,7 +292,7 @@
     padding-bottom: 5px;
   }
 
-  #infos p, #infos li, #regeln p, #regeln li { font-size: 16px; color: #e6e6e6; }
+  #infos p, #infos li, #regeln p, #regeln li, #crafting p, #crafting li { font-size: 16px; color: #e6e6e6; }
   #infos ul { margin: 8px 0 0 22px; }
   #infos li { margin-bottom: 6px; }
 
@@ -227,9 +358,13 @@
   <div class="knoepfe">
     <button class="knopf" onclick="bereichZeigen('infos')">Minecraft Infos</button>
     <button class="knopf knopf-regeln" onclick="bereichZeigen('regeln')">Regeln</button>
+    <button class="knopf knopf-crafting" onclick="bereichZeigen('crafting')">Easy Crafting</button>
   </div>
 
+  <div id="schleier" onclick="alleSchliessen()"></div>
+
   <section id="infos">
+    <div class="kopfzeile"><button class="schliessen" onclick="alleSchliessen()">&#10006; Exit</button></div>
     <h2>Alles über Minecraft</h2>
     <p>Minecraft ist ein Sandbox-Spiel, in dem die ganze Welt aus Blöcken besteht.
        Du kannst jeden Block abbauen und überall wieder setzen – daraus entsteht alles,
@@ -296,6 +431,7 @@
   </section>
 
   <section id="regeln">
+    <div class="kopfzeile"><button class="schliessen" onclick="alleSchliessen()">&#10006; Exit</button></div>
     <h2>Regeln auf dem SwissSMP</h2>
     <p>Damit alle Spaß haben, gelten diese Regeln für jeden auf dem Server:</p>
     <ul class="regel-liste">
@@ -310,24 +446,168 @@
     <p style="margin-top:18px">Wer sich nicht daran hält, wird vom Server geworfen.</p>
   </section>
 
+  <section id="crafting">
+    <div class="kopfzeile"><button class="schliessen" onclick="alleSchliessen()">&#10006; Exit</button></div>
+    <h2>Easy Crafting</h2>
+    <p>Alle wichtigen Rezepte. Lege die Zutaten genau so in die Werkbank (3&times;3), wie es im Raster steht.</p>
+    <div class="legende" id="legende"></div>
+    <div id="rezepte-liste"></div>
+  </section>
+
   <footer>
     Erschaffer der Webseite: <b>Mikkel</b><br>
     © 2026 SwissSMP · Kein offizielles Minecraft-Produkt.
   </footer>
 
 <script>
+  var BEREICHE = ["infos", "regeln", "crafting"];
+
+  function alleSchliessen() {
+    BEREICHE.forEach(function (id) {
+      document.getElementById(id).classList.remove("offen");
+    });
+    document.getElementById("schleier").classList.remove("offen");
+    document.body.style.overflow = "";
+  }
+
   function bereichZeigen(id) {
     var box = document.getElementById(id);
-    var offen = box.classList.contains("offen");
+    var warOffen = box.classList.contains("offen");
+    alleSchliessen();
 
-    document.getElementById("infos").classList.remove("offen");
-    document.getElementById("regeln").classList.remove("offen");
-
-    if (!offen) {
+    if (!warOffen) {
       box.classList.add("offen");
-      box.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("schleier").classList.add("offen");
+      document.body.style.overflow = "hidden";
+      box.scrollTop = 0;
     }
   }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { alleSchliessen(); }
+  });
+
+  /* ---------- Easy Crafting: Daten ---------- */
+  var ZUTATEN = {
+    holz:      ["Holz",          "#6b4a2b", "#fff"],
+    brett:     ["Bretter",       "#a5763f", "#fff"],
+    stock:     ["Stock",         "#c8a165", "#3a2a15"],
+    stein:     ["Stein",         "#8a8a8a", "#fff"],
+    kohle:     ["Kohle",         "#2b2b2b", "#fff"],
+    eisen:     ["Eisen",         "#d8d8d8", "#333"],
+    eisenblock:["Eisenblock",    "#b9b9b9", "#333"],
+    gold:      ["Gold",          "#f0c236", "#4a3a00"],
+    diamant:   ["Diamant",       "#4fd6d0", "#083b39"],
+    redstone:  ["Redstone",      "#c0392b", "#fff"],
+    wolle:     ["Wolle",         "#ececec", "#333"],
+    faden:     ["Faden",         "#cfcfcf", "#333"],
+    leder:     ["Leder",         "#8b5a2b", "#fff"],
+    papier:    ["Papier",        "#f2f2f2", "#333"],
+    weizen:    ["Weizen",        "#d9c15a", "#3a3000"],
+    obsidian:  ["Obsidian",      "#241c36", "#fff"],
+    feder:     ["Feder",         "#fafafa", "#333"],
+    feuerstein:["Feuerstein",    "#4a4a4a", "#fff"],
+    sand:      ["Sand",          "#e0d7a8", "#3a3000"],
+    pulver:    ["Schiesspulver", "#9aa0a6", "#222"],
+    glas:      ["Glas",          "#bfe4ee", "#204a55"],
+    buch:      ["Buch",          "#b08a4f", "#fff"],
+    truhe:     ["Truhe",         "#9a6f34", "#fff"],
+    rohr:      ["Zuckerrohr",    "#86c46b", "#123d0c"]
+  };
+
+  var _ = "";
+
+  var REZEPTE = [
+    ["Grundlagen", [
+      ["Bretter",       "brett", 4,  ["holz",_,_, _,_,_, _,_,_]],
+      ["Stöcke",       "stock", 4,  ["brett",_,_, "brett",_,_, _,_,_]],
+      ["Werkbank",      "brett", 1,  ["brett","brett",_, "brett","brett",_, _,_,_]],
+      ["Truhe",         "truhe", 1,  ["brett","brett","brett", "brett",_,"brett", "brett","brett","brett"]],
+      ["Ofen",          "stein", 1,  ["stein","stein","stein", "stein",_,"stein", "stein","stein","stein"]],
+      ["Fackel",        "kohle", 4,  ["kohle",_,_, "stock",_,_, _,_,_]],
+      ["Holztür",      "brett", 3,  ["brett","brett",_, "brett","brett",_, "brett","brett",_]],
+      ["Leiter",        "stock", 3,  ["stock",_,"stock", "stock","stock","stock", "stock",_,"stock"]],
+      ["Bett",          "wolle", 1,  ["wolle","wolle","wolle", "brett","brett","brett", _,_,_]],
+      ["Glasscheiben",  "glas", 16,  [_,_,_, "glas","glas","glas", "glas","glas","glas"]]
+    ]],
+    ["Werkzeuge &amp; Waffen", [
+      ["Holzspitzhacke",    "brett", 1, ["brett","brett","brett", _,"stock",_, _,"stock",_]],
+      ["Steinspitzhacke",   "stein", 1, ["stein","stein","stein", _,"stock",_, _,"stock",_]],
+      ["Eisenspitzhacke",   "eisen", 1, ["eisen","eisen","eisen", _,"stock",_, _,"stock",_]],
+      ["Diamantspitzhacke", "diamant", 1, ["diamant","diamant","diamant", _,"stock",_, _,"stock",_]],
+      ["Diamantschwert",    "diamant", 1, [_,"diamant",_, _,"diamant",_, _,"stock",_]],
+      ["Diamantaxt",        "diamant", 1, ["diamant","diamant",_, "diamant","stock",_, _,"stock",_]],
+      ["Diamantschaufel",   "diamant", 1, [_,"diamant",_, _,"stock",_, _,"stock",_]],
+      ["Diamanthacke",      "diamant", 1, ["diamant","diamant",_, _,"stock",_, _,"stock",_]],
+      ["Bogen",             "stock", 1,  [_,"stock","faden", "stock",_,"faden", _,"stock","faden"]],
+      ["Pfeil",             "feuerstein", 4, [_,"feuerstein",_, _,"stock",_, _,"feder",_]]
+    ]],
+    ["Rüstung", [
+      ["Eisenhelm",        "eisen", 1, ["eisen","eisen","eisen", "eisen",_,"eisen", _,_,_]],
+      ["Eisenbrustplatte", "eisen", 1, ["eisen",_,"eisen", "eisen","eisen","eisen", "eisen","eisen","eisen"]],
+      ["Eisenhose",        "eisen", 1, ["eisen","eisen","eisen", "eisen",_,"eisen", "eisen",_,"eisen"]],
+      ["Eisenstiefel",     "eisen", 1, [_,_,_, "eisen",_,"eisen", "eisen",_,"eisen"]],
+      ["Eimer",            "eisen", 1, [_,_,_, "eisen",_,"eisen", _,"eisen",_]]
+    ]],
+    ["Redstone &amp; Technik", [
+      ["Redstone-Fackel", "redstone", 1, ["redstone",_,_, "stock",_,_, _,_,_]],
+      ["Kolben",          "brett", 1,  ["brett","brett","brett", "stein","eisen","stein", "stein","redstone","stein"]],
+      ["Kompass",         "eisen", 1,  [_,"eisen",_, "eisen","redstone","eisen", _,"eisen",_]],
+      ["Uhr",             "gold", 1,   [_,"gold",_, "gold","redstone","gold", _,"gold",_]],
+      ["Schienen",        "eisen", 16, ["eisen",_,"eisen", "eisen","stock","eisen", "eisen",_,"eisen"]],
+      ["Trichter",        "eisen", 1,  ["eisen",_,"eisen", "eisen","truhe","eisen", _,"eisen",_]],
+      ["TNT",             "pulver", 1, ["pulver","sand","pulver", "sand","pulver","sand", "pulver","sand","pulver"]],
+      ["Amboss",          "eisenblock", 1, ["eisenblock","eisenblock","eisenblock", _,"eisen",_, "eisen","eisen","eisen"]]
+    ]],
+    ["Sonstiges", [
+      ["Papier",             "rohr", 3,  [_,_,_, "rohr","rohr","rohr", _,_,_]],
+      ["Buch",               "papier", 1, ["papier","papier",_, "papier","leder",_, _,_,_]],
+      ["Verzauberungstisch", "buch", 1,  [_,"buch",_, "diamant","obsidian","diamant", "obsidian","obsidian","obsidian"]],
+      ["Brot",               "weizen", 1, [_,_,_, "weizen","weizen","weizen", _,_,_]]
+    ]]
+  ];
+
+  function kuerzel(name) {
+    return name.substring(0, 2);
+  }
+
+  function zelleHtml(code) {
+    if (!code) { return '<div class="zelle"></div>'; }
+    var z = ZUTATEN[code];
+    return '<div class="zelle" style="background:' + z[1] + ';color:' + z[2] + '" title="' + z[0] + '">' + kuerzel(z[0]) + '</div>';
+  }
+
+  function craftingBauen() {
+    var legende = document.getElementById("legende");
+    for (var code in ZUTATEN) {
+      var z = ZUTATEN[code];
+      var sp = document.createElement("span");
+      sp.style.background = z[1];
+      sp.style.color = z[2];
+      sp.textContent = kuerzel(z[0]) + " = " + z[0];
+      legende.appendChild(sp);
+    }
+
+    var html = "";
+    REZEPTE.forEach(function (gruppe) {
+      html += "<h3>" + gruppe[0] + "</h3><div class='rezepte'>";
+      gruppe[1].forEach(function (r) {
+        var name = r[0], erg = r[1], anzahl = r[2], raster = r[3];
+        var e = ZUTATEN[erg];
+        html += "<div class='rezept'><div class='zeile'><div class='raster'>";
+        for (var i = 0; i < 9; i++) { html += zelleHtml(raster[i]); }
+        html += "</div><div class='pfeil'>&#10148;</div><div class='ergebnis'>";
+        html += "<div class='zelle' style='width:30px;height:30px;background:" + e[1] + ";color:" + e[2] + "'>" + kuerzel(name) + "</div>";
+        html += "<div class='anzahl'>&times;" + anzahl + "</div></div></div>";
+        html += "<div class='titel'>" + name + "</div></div>";
+      });
+      html += "</div>";
+    });
+    document.getElementById("rezepte-liste").innerHTML = html;
+  }
+
+  craftingBauen();
+
 </script>
 
 </body>
