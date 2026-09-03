@@ -11,14 +11,15 @@
     min-height: 100vh;
     font-family: "Trebuchet MS", "Segoe UI", sans-serif;
     color: #fff;
-    /* Fallback-Hintergrund (Alpen-Look), falls hintergrund.png fehlt */
+    /* Zuerst dein Foto (hintergrund.png). Fehlt es, greift die gezeichnete Alpen-Szene. */
     background:
       url("hintergrund.png") center / cover no-repeat fixed,
-      linear-gradient(180deg, #cfe3f2 0%, #8fb4cf 45%, #4a6b86 100%) fixed;
+      url("hintergrund.svg") center / cover no-repeat fixed,
+      #8fb4cf;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 16px 60px;
+    padding: clamp(50px, 7vw, 80px) clamp(28px, 6vw, 60px) 80px;
   }
 
   /* Dunkler Schleier, damit Text lesbar bleibt */
@@ -26,7 +27,7 @@
     content: "";
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.38);
     z-index: -1;
   }
 
@@ -137,6 +138,18 @@
   .tabelle th { background: #2b2b30; color: #ffd75e; }
   .tabelle td { color: #e6e6e6; }
 
+
+  /* Minecraft-Steinrahmen am Bildschirmrand */
+  .rahmen {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    border-style: solid;
+    border-width: clamp(14px, 3vw, 30px);
+    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' shape-rendering='crispEdges'%3E%3Crect width='32' height='16' fill='%235d5d5d'/%3E%3Crect x='0' y='0' width='15' height='7' fill='%238d8d8d'/%3E%3Crect x='16' y='0' width='15' height='7' fill='%23808080'/%3E%3Crect x='0' y='8' width='7' height='7' fill='%23979797'/%3E%3Crect x='8' y='8' width='15' height='7' fill='%23878787'/%3E%3Crect x='24' y='8' width='7' height='7' fill='%237b7b7b'/%3E%3C/svg%3E") 8 round;
+  }
+
   footer {
     margin-top: 40px;
     font-size: 14px;
@@ -146,6 +159,8 @@
 </style>
 </head>
 <body>
+
+  <div class="rahmen" aria-hidden="true"></div>
 
   <h1>SwissSMP</h1>
   <p class="untertitel">Der Schweizer Minecraft Survival-Server 🇨🇭</p>

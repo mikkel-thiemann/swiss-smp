@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="himmel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dbeaf6"/>
+      <stop offset="55%" stop-color="#b3cde2"/>
+      <stop offset="100%" stop-color="#8fb0c9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="320" height="180" fill="url(#himmel)"/>
+
+  <!-- Ferne Bergkette -->
+  <polygon points="-10,120 30,84 60,104 90,72 120,100 150,78 180,104 220,74 260,102 300,80 330,120 330,180 -10,180" fill="#a9c2d6"/>
+  <polygon points="30,84 22,96 38,96" fill="#e8f2fa"/>
+  <polygon points="90,72 80,88 100,88" fill="#e8f2fa"/>
+  <polygon points="220,74 210,90 230,90" fill="#e8f2fa"/>
+
+  <!-- Hauptgipfel -->
+  <polygon points="60,180 120,66 140,86 165,40 200,88 215,72 265,180" fill="#8ba3b8"/>
+  <polygon points="165,40 148,68 158,64 168,76 182,62 190,72" fill="#f2f8fd"/>
+  <polygon points="120,66 108,86 118,82 126,92 136,80" fill="#f2f8fd"/>
+  <polygon points="165,40 200,88 215,72 265,180 190,180" fill="#7d94a8" opacity="0.55"/>
+
+  <!-- Schneeboden, blockig -->
+  <rect x="0" y="128" width="320" height="52" fill="#e6eff7"/>
+  <rect x="0" y="128" width="320" height="4" fill="#f7fbff"/>
+  <rect x="0" y="146" width="320" height="34" fill="#d7e3ee"/>
+  <rect x="0" y="162" width="320" height="18" fill="#c6d5e2"/>
+
+  <!-- Blockige Stufen -->
+  <rect x="12" y="140" width="28" height="8" fill="#eef5fb"/>
+  <rect x="12" y="148" width="28" height="8" fill="#cfdce8"/>
+  <rect x="248" y="136" width="34" height="8" fill="#eef5fb"/>
+  <rect x="248" y="144" width="34" height="8" fill="#cfdce8"/>
+  <rect x="96" y="152" width="40" height="8" fill="#eef5fb"/>
+  <rect x="184" y="156" width="36" height="8" fill="#eef5fb"/>
+
+  <!-- Erde unter dem Schnee -->
+  <rect x="12" y="156" width="28" height="10" fill="#6b4a33"/>
+  <rect x="248" y="152" width="34" height="12" fill="#6b4a33"/>
+
+  <!-- Tannen -->
+  <g fill="#2f6b3f">
+    <rect x="26" y="104" width="14" height="6"/><rect x="29" y="98" width="8" height="6"/><rect x="31" y="93" width="4" height="5"/>
+    <rect x="60" y="112" width="16" height="7"/><rect x="63" y="105" width="10" height="7"/><rect x="66" y="99" width="4" height="6"/>
+    <rect x="236" y="108" width="16" height="7"/><rect x="239" y="101" width="10" height="7"/><rect x="242" y="95" width="4" height="6"/>
+    <rect x="286" y="116" width="18" height="8"/><rect x="290" y="108" width="10" height="8"/><rect x="293" y="102" width="4" height="6"/>
+    <rect x="150" y="118" width="14" height="6"/><rect x="153" y="112" width="8" height="6"/>
+  </g>
+  <g fill="#f4f9fd">
+    <rect x="29" y="93" width="4" height="2"/>
+    <rect x="63" y="99" width="4" height="2"/>
+    <rect x="239" y="95" width="4" height="2"/>
+    <rect x="290" y="102" width="4" height="2"/>
+  </g>
+  <g fill="#4a3524">
+    <rect x="31" y="110" width="4" height="6"/>
+    <rect x="66" y="119" width="4" height="6"/>
+    <rect x="242" y="115" width="4" height="6"/>
+    <rect x="293" y="124" width="4" height="6"/>
+    <rect x="155" y="124" width="4" height="6"/>
+  </g>
+
+  <!-- Schneeflocken -->
+  <g fill="#ffffff" opacity="0.85">
+    <rect x="20" y="30" width="2" height="2"/><rect x="70" y="18" width="2" height="2"/>
+    <rect x="112" y="44" width="2" height="2"/><rect x="150" y="24" width="2" height="2"/>
+    <rect x="196" y="36" width="2" height="2"/><rect x="238" y="20" width="2" height="2"/>
+    <rect x="280" y="48" width="2" height="2"/><rect x="46" y="62" width="2" height="2"/>
+    <rect x="204" y="66" width="2" height="2"/><rect x="300" y="26" width="2" height="2"/>
+    <rect x="90" y="120" width="2" height="2"/><rect x="264" y="96" width="2" height="2"/>
+  </g>
+</svg>
