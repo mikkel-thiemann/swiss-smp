@@ -79,7 +79,6 @@
   }
 
   .knopf {
-    margin-top: 26px;
     padding: 18px 44px;
     font-size: clamp(17px, 3vw, 24px);
     font-family: inherit;
@@ -96,8 +95,46 @@
   .knopf:hover { background: #58a847; }
   .knopf:active { transform: translateY(5px); box-shadow: 0 1px 0 #22461a; }
 
+
+  .knoepfe {
+    margin-top: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .knopf-regeln {
+    background: #a33a3a;
+    border-color: #6d2323;
+    box-shadow: 0 6px 0 #4d1818;
+  }
+
+  .knopf-regeln:hover { background: #bf4747; }
+  .knopf-regeln:active { box-shadow: 0 1px 0 #4d1818; }
+
+  .regel-liste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .regel-liste li {
+    background: rgba(255, 255, 255, 0.06);
+    border-left: 5px solid #a33a3a;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    padding: 12px 16px;
+    font-size: 18px;
+  }
+
+  .regel-liste li.gut {
+    border-left-color: #4a8f3c;
+    background: rgba(74, 143, 60, 0.16);
+  }
+
   /* Info-Bereich */
-  #infos {
+  #infos, #regeln {
     display: none;
     margin-top: 36px;
     width: min(900px, 100%);
@@ -108,15 +145,15 @@
     line-height: 1.65;
   }
 
-  #infos.offen { display: block; }
+  #infos.offen, #regeln.offen { display: block; }
 
-  #infos h2 {
+  #infos h2, #regeln h2 {
     color: #ffd75e;
     font-size: 30px;
     margin-bottom: 6px;
   }
 
-  #infos h3 {
+  #infos h3, #regeln h3 {
     color: #7bd35f;
     font-size: 21px;
     margin: 26px 0 8px;
@@ -124,7 +161,7 @@
     padding-bottom: 5px;
   }
 
-  #infos p, #infos li { font-size: 16px; color: #e6e6e6; }
+  #infos p, #infos li, #regeln p, #regeln li { font-size: 16px; color: #e6e6e6; }
   #infos ul { margin: 8px 0 0 22px; }
   #infos li { margin-bottom: 6px; }
 
@@ -187,7 +224,10 @@
     <div class="port">Port: 49212</div>
   </div>
 
-  <button class="knopf" onclick="infosZeigen()">Minecraft Infos</button>
+  <div class="knoepfe">
+    <button class="knopf" onclick="bereichZeigen('infos')">Minecraft Infos</button>
+    <button class="knopf knopf-regeln" onclick="bereichZeigen('regeln')">Regeln</button>
+  </div>
 
   <section id="infos">
     <h2>Alles über Minecraft</h2>
@@ -255,16 +295,36 @@
        Genau das machen wir auf dem SwissSMP – komm einfach mit der IP oben vorbei!</p>
   </section>
 
+  <section id="regeln">
+    <h2>Regeln auf dem SwissSMP</h2>
+    <p>Damit alle Spaß haben, gelten diese Regeln für jeden auf dem Server:</p>
+    <ul class="regel-liste">
+      <li>&#10060; Kein Scamming</li>
+      <li>&#10060; Kein Griefing</li>
+      <li>&#10060; Kein Klauen</li>
+      <li>&#10060; Kein Beleidigen</li>
+      <li>&#10060; Nicht unnötig den Spaß anderer verderben</li>
+      <li>&#10060; KEIN CHEATEN</li>
+      <li class="gut">&#9989; Spaß haben</li>
+    </ul>
+    <p style="margin-top:18px">Wer sich nicht daran hält, wird vom Server geworfen.</p>
+  </section>
+
   <footer>
     Erschaffer der Webseite: <b>Mikkel</b><br>
     © 2026 SwissSMP · Kein offizielles Minecraft-Produkt.
   </footer>
 
 <script>
-  function infosZeigen() {
-    var box = document.getElementById("infos");
-    box.classList.toggle("offen");
-    if (box.classList.contains("offen")) {
+  function bereichZeigen(id) {
+    var box = document.getElementById(id);
+    var offen = box.classList.contains("offen");
+
+    document.getElementById("infos").classList.remove("offen");
+    document.getElementById("regeln").classList.remove("offen");
+
+    if (!offen) {
+      box.classList.add("offen");
       box.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
