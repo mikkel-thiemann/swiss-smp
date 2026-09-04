@@ -343,6 +343,109 @@
     margin-top: 22px;
   }
 
+
+  /* Regeln auf der Holztafel */
+  #regeln.offen {
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    width: min(1250px, 96vw);
+    aspect-ratio: 1672 / 941;
+    max-height: 94vh;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: url("regeln.png") center / 100% 100% no-repeat, #14141a;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+  }
+
+  #regeln .kopfzeile {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    padding: 0;
+    background: none;
+  }
+
+  #regeln .schliessen {
+    font-size: clamp(11px, 1.1vw, 16px);
+    padding: 6px 12px;
+  }
+
+  #regeln .tafel {
+    position: absolute;
+    left: 37%;
+    right: 19.5%;
+    top: 38.5%;
+    bottom: 9%;
+    overflow-y: auto;
+    text-align: center;
+  }
+
+  #regeln h2 { display: none; }
+
+  #regeln .tafel .einleitung {
+    color: #5a4426;
+    font-size: clamp(9px, 1.05vw, 15px);
+    margin-bottom: 2%;
+  }
+
+  #regeln .regel-liste li {
+    color: #3a2a16;
+    background: rgba(120, 80, 30, 0.12);
+    border-left: 4px solid #8b2b2b;
+    font-size: clamp(10px, 1.35vw, 20px);
+    font-weight: bold;
+    padding: 1.1% 4%;
+    margin-bottom: 1.5%;
+    text-align: left;
+  }
+
+  #regeln .regel-liste li.gut {
+    background: rgba(74, 143, 60, 0.22);
+    border-left-color: #3f7a33;
+  }
+
+  #regeln .tafel .schluss {
+    color: #6b3a2a;
+    font-size: clamp(9px, 1.05vw, 15px);
+    margin-top: 2%;
+    font-style: italic;
+  }
+
+  /* Auf schmalen Bildschirmen waere die Tafel unlesbar: normales Fenster */
+  @media (max-width: 760px) {
+    #regeln.offen {
+      top: clamp(14px, 4vh, 46px);
+      bottom: clamp(14px, 4vh, 46px);
+      transform: translateX(-50%);
+      aspect-ratio: auto;
+      max-height: none;
+      background: rgba(15, 15, 18, 0.97);
+      border: 4px solid #555;
+      padding: 0 clamp(16px, 3vw, 30px) 34px;
+      overflow-y: auto;
+    }
+
+    #regeln .kopfzeile {
+      position: sticky;
+      top: 0;
+      right: auto;
+      padding: 14px 0 10px;
+      background: rgba(15, 15, 18, 0.98);
+    }
+
+    #regeln .tafel {
+      position: static;
+      overflow: visible;
+    }
+
+    #regeln h2 { display: block; }
+    #regeln .tafel .einleitung, #regeln .tafel .schluss { color: #e6e6e6; }
+    #regeln .regel-liste li { color: #e6e6e6; background: rgba(255,255,255,0.06); }
+  }
+
   /* Minecraft-Steinrahmen am Bildschirmrand */
   .rahmen {
     position: fixed;
@@ -458,17 +561,19 @@
   <section id="regeln">
     <div class="kopfzeile"><button class="schliessen" onclick="alleSchliessen()">&#10006; Exit</button></div>
     <h2>Regeln auf dem SwissSMP</h2>
-    <p>Damit alle Spaß haben, gelten diese Regeln für jeden auf dem Server:</p>
-    <ul class="regel-liste">
-      <li>&#10060; Kein Scamming</li>
-      <li>&#10060; Kein Griefing</li>
-      <li>&#10060; Kein Klauen</li>
-      <li>&#10060; Kein Beleidigen</li>
-      <li>&#10060; Nicht unnötig den Spaß anderer verderben</li>
-      <li>&#10060; KEIN CHEATEN</li>
-      <li class="gut">&#9989; Spaß haben</li>
-    </ul>
-    <p style="margin-top:18px">Wer sich nicht daran hält, wird vom Server geworfen.</p>
+    <div class="tafel">
+      <p class="einleitung">Damit alle Spaß haben, gelten diese Regeln für jeden auf dem Server:</p>
+      <ul class="regel-liste">
+        <li>&#10060; Kein Scamming</li>
+        <li>&#10060; Kein Griefing</li>
+        <li>&#10060; Kein Klauen</li>
+        <li>&#10060; Kein Beleidigen</li>
+        <li>&#10060; Nicht unnötig den Spaß anderer verderben</li>
+        <li>&#10060; KEIN CHEATEN</li>
+        <li class="gut">&#9989; Spaß haben</li>
+      </ul>
+      <p class="schluss">Wer sich nicht daran hält, wird vom Server geworfen.</p>
+    </div>
   </section>
 
   <section id="crafting">
