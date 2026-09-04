@@ -315,6 +315,34 @@
   .tabelle td { color: #e6e6e6; }
 
 
+
+  /* Wenn hintergrund.png vorhanden ist: Bild spricht fuer sich,
+     nur IP-Box und Knoepfe bleiben stehen. */
+  body.hat-bild h1,
+  body.hat-bild .untertitel,
+  body.hat-bild .wappen,
+  body.hat-bild .rahmen {
+    display: none;
+  }
+
+  body.hat-bild {
+    justify-content: flex-end;
+    padding-bottom: clamp(30px, 6vh, 70px);
+  }
+
+  body.hat-bild::before {
+    background: linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.70) 100%);
+  }
+
+  body.hat-bild .server-box {
+    background: rgba(10, 10, 12, 0.82);
+    border-color: #8a6134;
+  }
+
+  body.hat-bild footer {
+    margin-top: 22px;
+  }
+
   /* Minecraft-Steinrahmen am Bildschirmrand */
   .rahmen {
     position: fixed;
@@ -604,6 +632,14 @@
   }
 
   craftingBauen();
+
+  /* Eigenes Hintergrundbild erkennen und Layout darauf umstellen */
+  (function () {
+    var test = new Image();
+    test.onload = function () { document.body.classList.add("hat-bild"); };
+    test.src = "hintergrund.png";
+  })();
+
 
 </script>
 
