@@ -766,6 +766,7 @@ function buildChunkMesh(world, c) {
         const nb = BLOCKS[nid];
         if (nb.opaque) continue;
         if (!b.opaque && nid === id && b.pass !== 'cutout') continue;
+        if (nb.name.endsWith('leaves') && b.name.endsWith('leaves')) continue; // schnelles Laub: weniger Flaechen
         if (b.name === 'glass' && nid === id) continue;
         if (id === B.ice && nb.fluid === 'water') continue;
         const tex = d === 2 ? b.faces.top : d === 3 ? b.faces.bottom : d === front ? b.faces.front : b.faces.side;

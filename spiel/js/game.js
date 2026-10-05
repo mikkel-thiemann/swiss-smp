@@ -30,7 +30,7 @@ class Game {
     this.ui = new UI(this);
     this.player = new Player();
     this.particleSys = new Particles(this.renderer.scene);
-    this.opts = Object.assign({ dist: 6, fov: 70, sens: 1, volume: 0.5, bob: true }, this.loadOpts());
+    this.opts = Object.assign({ dist: 4, fov: 70, sens: 1, volume: 0.5, bob: true }, this.loadOpts());
     this.keys = {};
     this.mouse = { left: false, right: false };
     this.running = false;
@@ -131,7 +131,7 @@ class Game {
     this.canvas.addEventListener('mousedown', e => {
       this.audio.init();
       if (!this.running) return;
-      if (document.pointerLockElement !== this.canvas) { if (!this.ui.isOpen && !this.chatOpen && !this.dead()) this.lock(); return; }
+      if (!this.locked()) { if (!this.ui.isOpen && !this.chatOpen && !this.dead()) this.lock(); return; }
       if (e.button === 0) { this.mouse.left = true; this.onLeftDown(); }
       if (e.button === 2) { this.mouse.right = true; this.onRightDown(); }
       if (e.button === 1) this.pickBlock();
@@ -142,18 +142,20 @@ class Game {
     });
     document.addEventListener('contextmenu', e => { if (this.running) e.preventDefault(); });
     document.addEventListener('mousemove', e => {
-      if (document.pointerLockElement !== this.canvas) return;
+      if (!this.locked()) return;
       const s = 0.0022 * this.opts.sens;
       const p = this.player;
       p.yaw -= e.movementX * s;
       p.pitch = clamp(p.pitch - e.movementY * s, -Math.PI / 2 + 0.001, Math.PI / 2 - 0.001);
     });
     document.addEventListener('wheel', e => {
-      if (!this.running || document.pointerLockElement !== this.canvas) return;
+      if (!this.running || !this.locked()) return;
       const p = this.player;
       p.selected = (p.selected + (e.deltaY > 0 ? 1 : -1) + 9) % 9;
       this.ui.showItemName(p.held());
     }, { passive: true });
+    // Manche Umgebungen (z.B. eingebettete Vorschau) erlauben keine Maussperre -> ohne Sperre weiterspielen
+    document.addEventListener('pointerlockerror', () => { this.noLock = true; this.paused = false; hideMenus(); });
     document.addEventListener('pointerlockchange', () => {
       if (!this.running) return;
       if (document.pointerLockElement !== this.canvas && !this.ui.isOpen && !this.chatOpen && !this.dead() && !this.sleeping) this.pause();
@@ -166,7 +168,13 @@ class Game {
     });
   }
 
-  lock() { this.audio.init(); try { const r = this.canvas.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) { /* egal */ } this.paused = false; hideMenus(); }
+  lock() {
+    this.audio.init();
+    this.paused = false; hideMenus();
+    if (this.noLock || !this.canvas.requestPointerLock) { this.noLock = true; return; }
+    try { const r = this.canvas.requestPointerLock(); if (r && r.catch) r.catch(() => { this.noLock = true; }); } catch (e) { this.noLock = true; }
+  }
+  locked() { return document.pointerLockElement === this.canvas || (this.noLock && !this.paused && !this.ui.isOpen && !this.chatOpen && !this.dead()); }
   unlock() { if (document.pointerLockElement) document.exitPointerLock(); }
   pause() { if (!this.running || this.loading) return; this.paused = true; this.mouse.left = this.mouse.right = false; this.keys = {}; this.save(); showMenu('pause'); }
   resume() { hideMenus(); this.lock(); }
@@ -192,6 +200,7 @@ class Game {
       return;
     }
     if (this.paused || this.dead()) return;
+    if (down && code === 'Escape' && this.noLock) { this.pause(); return; }
     const wasDown = this.keys[code];
     this.keys[code] = down;
     if (!down) return;
@@ -285,6 +294,15 @@ class Game {
     if (dt > 0.1) dt = 0.1;
     if (!this.running || !this.world) return;
     this.fps = this.fps ? this.fps * 0.95 + (1 / Math.max(dt, 0.001)) * 0.05 : 60;
+    // Sichtweite automatisch verkleinern, wenn das Spiel ruckelt
+    if (!this.loading && !this.paused) {
+      this.lowFpsT = this.fps < 25 ? (this.lowFpsT || 0) + dt : 0;
+      if (this.lowFpsT > 4 && this.opts.dist > 2) {
+        this.opts.dist--; this.lowFpsT = 0; this.saveOpts();
+        this.renderer.setRenderDistance(this.opts.dist); this.lastChunk = null;
+        this.ui.toast('Sichtweite automatisch auf ' + this.opts.dist + ' Chunks verringert (weniger Ruckeln)');
+      }
+    }
 
     this.updateChunks();
     if (this.loading) {
@@ -314,6 +332,7 @@ class Game {
         }
         this.loading = false;
         hideMenus();
+        if (p.mode === 'survival') this.ui.toast('Tipp: Linke Maustaste GEDRUECKT HALTEN, um Bloecke abzubauen');
         showMenu('clicktoplay');
         this.paused = true;
       }
@@ -451,7 +470,7 @@ class Game {
       }
     }
     const t0 = performance.now();
-    const budget = this.loading ? 40 : 6;
+    const budget = this.loading ? 40 : 3;
     while (this.loadList.length && performance.now() - t0 < budget) {
       const [cx, cz] = this.loadList.shift();
       if (w.getChunk(cx, cz)) continue;
@@ -465,7 +484,7 @@ class Game {
     }
     // Meshes bauen (naechste zuerst)
     const t1 = performance.now();
-    const mb = this.loading ? 40 : 7;
+    const mb = this.loading ? 40 : 4;
     const dirty = [];
     for (const c of w.chunks.values()) {
       if (!c.dirty) continue;
@@ -502,6 +521,14 @@ class Game {
     const fwd = active ? (k.KeyW ? 1 : 0) - (k.KeyS ? 1 : 0) : 0;
     const str = active ? (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0) : 0;
     const jump = active && k.Space;
+    // Pfeiltasten zum Umschauen (z.B. fuer Laptop-Touchpads)
+    if (active) {
+      const t = 2.2 * dt;
+      if (k.ArrowLeft) p.yaw += t;
+      if (k.ArrowRight) p.yaw -= t;
+      if (k.ArrowUp) p.pitch = Math.min(Math.PI / 2 - 0.001, p.pitch + t);
+      if (k.ArrowDown) p.pitch = Math.max(-Math.PI / 2 + 0.001, p.pitch - t);
+    }
     const shift = active && (k.ShiftLeft || k.ShiftRight);
     p.sneaking = shift && !p.flying;
     p.h = p.sneaking ? 1.5 : 1.8;
