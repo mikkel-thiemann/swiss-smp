@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwissCraft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root { --font: "VT323", "Courier New", monospace; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: var(--font); color: #fff; user-select: none; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  img { image-rendering: pixelated; }
+
+  /* ---------- HUD ---------- */
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #crosshair { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; transform: translate(-50%, -50%); mix-blend-mode: difference; }
+  #crosshair::before, #crosshair::after { content: ""; position: absolute; background: #fff; }
+  #crosshair::before { left: 10px; top: 0; width: 2px; height: 22px; }
+  #crosshair::after { left: 0; top: 10px; width: 22px; height: 2px; }
+  #bottom { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); width: 364px; }
+  #hotbar { display: flex; background: rgba(0, 0, 0, 0.35); border: 2px solid #1b1b1b; outline: 2px solid #7a7a7a; }
+  .hslot { width: 40px; height: 40px; position: relative; border: 2px solid #8b8b8b; border-color: #555 #8b8b8b #8b8b8b #555; }
+  .hslot.sel { outline: 4px solid #fff; outline-offset: -2px; z-index: 2; box-shadow: 0 0 0 2px #000; }
+  .hslot img { position: absolute; left: 2px; top: 2px; width: 32px; height: 32px; }
+  .cnt { position: absolute; right: 1px; bottom: -4px; font-size: 22px; color: #fff; text-shadow: 2px 2px 0 #3f3f3f; line-height: 1; }
+  .dur { position: absolute; left: 3px; right: 3px; bottom: 2px; height: 3px; background: #000; }
+  .dur i { display: block; height: 2px; }
+  #stats { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3px; }
+  #stats .col { display: flex; flex-direction: column; gap: 1px; }
+  .row9 { display: flex; height: 18px; }
+  .row9 img { width: 18px; height: 18px; margin-right: -1px; }
+  #hearts.low img { animation: shake 0.3s infinite; }
+  @keyframes shake { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+  #itemname { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); font-size: 24px; text-shadow: 2px 2px 0 #3f3f3f; transition: opacity 0.4s; opacity: 0; white-space: nowrap; }
+  #chatlog { position: absolute; left: 6px; bottom: 120px; width: min(560px, 60vw); font-size: 22px; display: flex; flex-direction: column; }
+  .chatline { background: rgba(0, 0, 0, 0.45); padding: 1px 6px; text-shadow: 2px 2px 0 #3f3f3f; transition: opacity 1s; }
+  .chatline.fade { opacity: 0; }
+  #chatlog.open .chatline { opacity: 1; }
+  #chatinput { position: fixed; left: 6px; bottom: 80px; width: min(560px, 80vw); font: 22px var(--font); background: rgba(0, 0, 0, 0.6); color: #fff; border: none; padding: 4px 8px; display: none; outline: none; }
+  #debug { position: absolute; left: 6px; top: 6px; font-size: 20px; line-height: 1.05; background: rgba(0, 0, 0, 0.4); padding: 4px 8px; display: none; text-shadow: 1px 1px 0 #333; }
+  #hurt { position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 160px rgba(200, 0, 0, 0.9); opacity: 0; }
+  #waterov { position: fixed; inset: 0; pointer-events: none; background: rgba(20, 50, 160, 0.25); display: none; }
+  #sleep { position: fixed; inset: 0; background: #000; opacity: 0; transition: opacity 1.5s; display: none; pointer-events: none; }
+
+  /* ---------- Inventar-GUI ---------- */
+  #overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); display: none; }
+  .gui { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none; background: #c6c6c6; color: #3f3f3f; padding: 10px 12px 12px;
+    border: 3px solid; border-color: #fff #555 #555 #fff; box-shadow: 0 0 0 3px #000; font-size: 22px; max-height: 96vh; overflow: auto; }
+  .gtitle { margin: 2px 0 2px; font-size: 22px; }
+  .grid { display: grid; gap: 0; }
+  .slot { width: 36px; height: 36px; background: #8b8b8b; border: 2px solid; border-color: #373737 #fff #fff #373737; position: relative; }
+  .slot:hover { background: #a9a9a9; }
+  .slot img { position: absolute; left: 0; top: 0; width: 32px; height: 32px; pointer-events: none; }
+  .slot .cnt, .slot .dur { pointer-events: none; }
+  .slot.big { width: 52px; height: 52px; }
+  .slot.big img { left: 8px; top: 8px; }
+  .slot.armor.empty::after { content: attr(data-ph); position: absolute; inset: 0; font-size: 13px; display: flex; align-items: center; justify-content: center; color: #666; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row.top { align-items: flex-start; margin-bottom: 6px; }
+  .row.center { justify-content: center; margin: 8px 0 10px; }
+  .col { display: flex; flex-direction: column; gap: 0; }
+  .arrow { font-size: 34px; color: #8b8b8b; }
+  .arrow.big { font-size: 46px; }
+  .player-preview { background: #000; border: 2px solid; border-color: #373737 #fff #fff #373737; }
+  #preview { display: block; width: 90px; height: 150px; image-rendering: pixelated; }
+  .craftbox { margin-left: 8px; }
+  .furnace .col { gap: 6px; align-items: center; }
+  .flame { width: 28px; height: 28px; background: #8b8b8b; position: relative; overflow: hidden; }
+  .flame i { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#ffe066, #ff7a00); }
+  .progress { width: 60px; height: 20px; background: #8b8b8b; position: relative; margin: 0 10px; clip-path: polygon(0 30%, 70% 30%, 70% 0, 100% 50%, 70% 100%, 70% 70%, 0 70%); }
+  .progress i { display: block; height: 100%; background: #fff; }
+  .cgrid { display: grid; grid-template-columns: repeat(9, 36px); max-height: 46vh; overflow-y: auto; margin: 6px 0; padding-right: 4px; }
+  #csearch { font: 20px var(--font); padding: 2px 6px; border: 2px solid #373737; background: #000; color: #fff; width: 200px; margin-left: auto; }
+  #cursor-item { position: fixed; pointer-events: none; z-index: 50; transform: translate(-16px, -16px); width: 32px; height: 32px; }
+  #cursor-item img { width: 32px; height: 32px; }
+  #cursor-item .cnt { right: -2px; bottom: -6px; }
+  #tooltip { position: fixed; z-index: 60; background: #100010ee; border: 2px solid #2a0a5e; padding: 2px 8px; font-size: 20px; color: #fff; display: none; pointer-events: none; line-height: 1.05; white-space: nowrap; }
+  #tooltip small { font-size: 18px; }
+
+  /* ---------- Menues ---------- */
+  .menu { position: fixed; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0, 0, 0, 0.55); z-index: 30; text-align: center; padding: 16px; }
+  .menu.dirt { background: var(--dirt) repeat; background-size: 64px; }
+  .menu.dirt::before { content: ""; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: -1; }
+  .menu h1 { font-size: clamp(54px, 10vw, 110px); color: #ddd; letter-spacing: 4px; text-shadow: 4px 4px 0 #3f3f3f, 0 0 0 #000; font-weight: normal; line-height: 0.9; }
+  .menu h1 span { color: #d33; }
+  .menu h2 { font-size: 40px; font-weight: normal; text-shadow: 3px 3px 0 #3f3f3f; }
+  .splash { color: #ff0; font-size: 26px; transform: rotate(-12deg); text-shadow: 2px 2px 0 #3f3f00; animation: pulse 0.6s infinite alternate; margin: -8px 0 16px 260px; }
+  @keyframes pulse { to { transform: rotate(-12deg) scale(1.08); } }
+  .mcbtn { font: 26px var(--font); color: #fff; width: 400px; max-width: 90vw; height: 44px; background: #6f6f6f; border: 2px solid #000; box-shadow: inset 2px 2px 0 #aaa, inset -2px -3px 0 #555; text-shadow: 2px 2px 0 #3f3f3f; cursor: pointer; }
+  .mcbtn:hover { background: #7e88bf; box-shadow: inset 2px 2px 0 #bcc4ff, inset -2px -3px 0 #59609a; }
+  .mcbtn.small { width: 120px; height: 36px; font-size: 22px; margin-left: 6px; }
+  .mcbtn.red:hover { background: #b34a4a; }
+  .menu input[type=text] { font: 24px var(--font); width: 400px; max-width: 90vw; height: 42px; background: #000; color: #fff; border: 2px solid #a0a0a0; padding: 0 10px; outline: none; }
+  .menu label { font-size: 22px; color: #a0a0a0; width: 400px; max-width: 90vw; text-align: left; }
+  .menu .note { color: #bbb; font-size: 20px; max-width: 640px; }
+  .wl { width: 640px; max-width: 94vw; max-height: 52vh; overflow-y: auto; background: rgba(0, 0, 0, 0.5); border: 2px solid #333; padding: 6px; }
+  .wentry { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; text-align: left; font-size: 24px; border-bottom: 1px solid #333; }
+  .wentry small { color: #999; font-size: 18px; }
+  .empty { padding: 20px; color: #aaa; font-size: 22px; }
+  .opt { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 22px; }
+  .opt input[type=range] { width: 400px; max-width: 90vw; accent-color: #7e88bf; }
+  .help { columns: 2; column-gap: 40px; text-align: left; font-size: 21px; background: rgba(0, 0, 0, 0.5); padding: 14px 22px; border: 2px solid #333; max-width: 760px; }
+  .help b { color: #ff5; font-weight: normal; }
+  #menu-death { background: rgba(120, 0, 0, 0.5); }
+  #menu-death h2 { font-size: 54px; }
+  #menu-clicktoplay { cursor: pointer; }
+  .mobile-note { display: none; color: #f88; font-size: 22px; }
+  @media (pointer: coarse) { .mobile-note { display: block; } }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div id="crosshair"></div>
+  <div id="debug"></div>
+  <div id="chatlog"></div>
+  <div id="itemname"></div>
+  <div id="bottom">
+    <div id="stats">
+      <div class="col"><div class="row9" id="armorbar"></div><div class="row9" id="hearts"></div></div>
+      <div class="col" style="align-items:flex-end"><div class="row9" id="bubbles"></div><div class="row9" id="food"></div></div>
+    </div>
+    <div id="hotbar"></div>
+  </div>
+</div>
+<div id="hurt"></div>
+<div id="waterov"></div>
+<div id="sleep"></div>
+<input id="chatinput" type="text" maxlength="200" autocomplete="off">
+
+<div id="overlay"></div>
+<div id="screen" class="gui"></div>
+<div id="cursor-item"></div>
+<div id="tooltip"></div>
+
+<!-- Titelbildschirm -->
+<div class="menu dirt" id="menu-title">
+  <h1>SWISS<span>CRAFT</span></h1>
+  <div class="splash">Auch mit Rezepten!</div>
+  <button class="mcbtn" data-go="worlds">Einzelspieler</button>
+  <button class="mcbtn" data-go="controls">Steuerung</button>
+  <button class="mcbtn" data-go="options">Optionen</button>
+  <button class="mcbtn" onclick="location.href='../index.html'">Zurueck zur SwissSMP-Webseite</button>
+  <div class="mobile-note">Hinweis: Das Spiel braucht Tastatur und Maus (PC oder Laptop).</div>
+  <div class="note" style="margin-top:14px">Ein Fan-Spiel im Stil von Minecraft. Nicht offiziell, nicht von Mojang.</div>
+</div>
+
+<div class="menu dirt" id="menu-worlds">
+  <h2>Welt auswaehlen</h2>
+  <div class="wl" id="worldlist"></div>
+  <button class="mcbtn" data-go="create">Neue Welt erstellen</button>
+  <button class="mcbtn" data-go="title">Zurueck</button>
+</div>
+
+<div class="menu dirt" id="menu-create">
+  <h2>Neue Welt erstellen</h2>
+  <label for="nw-name">Name der Welt</label>
+  <input type="text" id="nw-name" value="Neue Welt" maxlength="32">
+  <label for="nw-seed">Startwert (Seed) - leer lassen fuer Zufall</label>
+  <input type="text" id="nw-seed" maxlength="32">
+  <button class="mcbtn" id="nw-mode" data-mode="survival">Spielmodus: Ueberleben</button>
+  <button class="mcbtn" data-go="docreate" id="nw-go">Welt erstellen</button>
+  <button class="mcbtn" data-go="worlds">Abbrechen</button>
+</div>
+
+<div class="menu dirt" id="menu-options">
+  <h2>Optionen</h2>
+  <div class="opt">Sichtweite: <span id="opt-dist-v"></span> Chunks<input type="range" id="opt-dist" min="2" max="12"></div>
+  <div class="opt">Sichtfeld: <span id="opt-fov-v"></span><input type="range" id="opt-fov" min="50" max="110"></div>
+  <div class="opt">Maus-Empfindlichkeit: <span id="opt-sens-v"></span><input type="range" id="opt-sens" min="20" max="300"></div>
+  <div class="opt">Lautstaerke: <span id="opt-vol-v"></span><input type="range" id="opt-vol" min="0" max="100"></div>
+  <button class="mcbtn" id="opt-bob">Kamerawackeln</button>
+  <button class="mcbtn" data-go="back-options">Fertig</button>
+</div>
+
+<div class="menu dirt" id="menu-controls">
+  <h2>Steuerung</h2>
+  <div class="help">
+    <b>W A S D</b> laufen<br><b>Leertaste</b> springen / schwimmen<br><b>2x Leertaste</b> fliegen (Kreativ)<br>
+    <b>Shift</b> schleichen<br><b>Strg</b> oder <b>2x W</b> sprinten<br><b>Maus</b> umschauen<br>
+    <b>Linksklick</b> abbauen / angreifen<br><b>Rechtsklick</b> bauen / benutzen / essen<br><b>Mausrad-Klick</b> Block auswaehlen<br>
+    <b>1-9 / Mausrad</b> Schnellleiste<br><b>E</b> Inventar<br><b>Q</b> Item fallen lassen<br>
+    <b>T</b> Chat, <b>/</b> Befehl (/help)<br><b>F3</b> Debug-Infos<br><b>F5</b> Ansicht wechseln<br><b>F1</b> HUD aus<br><b>Esc</b> Pause<br><br>
+    <b>Im Inventar:</b><br>Linksklick nehmen/ablegen<br>Rechtsklick halbieren / einzeln<br>Shift+Klick schnell verschieben<br>Zahl ueber Slot: in Schnellleiste
+  </div>
+  <button class="mcbtn" data-go="title">Zurueck</button>
+</div>
+
+<div class="menu" id="menu-loading" style="background:#2b1d14">
+  <h2>Welt wird generiert...</h2>
+  <div class="note" id="loadinfo"></div>
+</div>
+
+<div class="menu" id="menu-clicktoplay">
+  <h2>Klicke, um zu spielen</h2>
+  <div class="note">Tipp: Faelle einen Baum (Linksklick gedrueckt halten), mache Bretter und eine Werkbank!</div>
+</div>
+
+<div class="menu" id="menu-pause">
+  <h2>Spielmenue</h2>
+  <button class="mcbtn" data-go="resume">Zurueck zum Spiel</button>
+  <button class="mcbtn" data-go="options">Optionen</button>
+  <button class="mcbtn" data-go="quit">Speichern und zum Titelbildschirm</button>
+</div>
+
+<div class="menu" id="menu-death">
+  <h2>Du bist gestorben!</h2>
+  <div class="note" id="deathmsg"></div>
+  <button class="mcbtn" data-go="respawn">Wiederbeleben</button>
+  <button class="mcbtn" data-go="deathtitle">Zum Titelbildschirm</button>
+</div>
+
+<script src="js/three.min.js"></script>
+<script src="js/noise.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/blocks.js"></script>
+<script src="js/recipes.js"></script>
+<script src="js/world.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/render.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/player.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script>
+  document.documentElement.style.setProperty('--dirt', 'url(' + TILE_CANVAS.dirt.toDataURL() + ')');
+</script>
+</body>
+</html>
