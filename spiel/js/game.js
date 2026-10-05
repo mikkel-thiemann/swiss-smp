@@ -935,7 +935,11 @@ class Game {
     if (!held) return;
     const it = ITEMS[held.id];
     // 3. Essen / Trinken
-    if ((it.food && (p.food < 20 || p.mode === 'creative' || held.id === I.golden_apple)) || it.drink) { if (!this.eating) this.eating = 0.001; return; }
+    if ((it.food && (p.food < 20 || p.mode === 'creative' || held.id === I.golden_apple)) || it.drink) {
+      if (!this.eating) { this.eating = 0.001; if (!repeat) this.ui.showHint('Rechte Maustaste gedrueckt halten zum Essen'); }
+      return;
+    }
+    if (it.food) { if (!repeat) this.ui.showHint('Du bist satt! Essen geht erst, wenn dein Hunger sinkt.'); return; }
     if (held.id === I.bow) { if (p.mode === 'creative' || p.countItem(I.arrow) > 0) this.bowCharge = 0.001; return; }
     if (it.throwable) {
       const e = p.eye(), d = p.lookDir();

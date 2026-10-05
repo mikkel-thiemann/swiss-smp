@@ -154,6 +154,15 @@ class UI {
 
   toast(msg) { this.chat(msg, '#ffff7a'); }
 
+  showHint(msg) {
+    // Kurzer Hinweis ueber der Schnellleiste (wie die Item-Namen)
+    const el = $('#itemname');
+    el.textContent = msg;
+    el.style.opacity = 1;
+    clearTimeout(this._inT);
+    this._inT = setTimeout(() => el.style.opacity = 0, 2500);
+  }
+
   chat(msg, color) {
     const el = document.createElement('div');
     el.className = 'chatline';
