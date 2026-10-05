@@ -81,6 +81,7 @@ class UI {
     this.buildHUD();
     this.cursorEl = $('#cursor-item');
     this.tooltip = $('#tooltip');
+    document.addEventListener('mouseup', e => this.onRelease(e));
     document.addEventListener('mousemove', e => {
       this.mouseX = e.clientX; this.mouseY = e.clientY;
       this.cursorEl.style.left = e.clientX + 'px'; this.cursorEl.style.top = e.clientY + 'px';
@@ -179,7 +180,7 @@ class UI {
       for (let i = from; i < from + n; i++) s += `<div class="slot" data-c="${name}" data-i="${i}"></div>`;
       return s + '</div>';
     };
-    const playerInv = () => `<div class="gtitle">Inventar</div>${grid('inv', 9, 27, 9)}<div style="height:8px"></div>${grid('inv', 0, 9, 9)}`;
+    const playerInv = () => `<div class="ghint">Item anklicken (oder ziehen) und auf ein Feld legen &middot; Rechtsklick: halbieren / einzeln ablegen &middot; Shift+Klick: schnell verschieben &middot; Ergebnis anklicken = craften</div><div class="gtitle">Inventar</div>${grid('inv', 9, 27, 9)}<div style="height:8px"></div>${grid('inv', 0, 9, 9)}`;
     if (type === 'inventory') {
       h += `<div class="row top">
         <div class="col">${['Helm', 'Brust', 'Hose', 'Schuhe'].map((n, i) => `<div class="slot armor" data-c="armor" data-i="${i}" data-ph="${n}"></div>`).join('')}</div>
@@ -286,6 +287,24 @@ class UI {
   }
 
   onClick(e) {
+    const hadCursor = !!this.cursor;
+    this.handleClick(e);
+    // Ziehen & Loslassen: wer ein Item aufnimmt und ueber einem anderen Feld loslaesst, legt es dort ab
+    const slot = e.target.closest && e.target.closest('.slot');
+    this.dragFrom = (!hadCursor && this.cursor && slot && e.button === 0) ? slot : null;
+  }
+
+  onRelease(e) {
+    const from = this.dragFrom;
+    this.dragFrom = null;
+    if (!this.screen || !from || !this.cursor || e.button !== 0) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const slot = el && el.closest('.slot');
+    if (!slot || slot === from || slot.dataset.c === 'result' || slot.dataset.c === 'creative') return;
+    this.handleClick({ target: slot, button: 0, shiftKey: false, preventDefault() {} });
+  }
+
+  handleClick(e) {
     const slot = e.target.closest('.slot');
     e.preventDefault();
     if (!slot) {
