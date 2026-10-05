@@ -410,7 +410,7 @@ class Game {
     const l = this.world.getLight(x, y, z);
     const biome = c ? BIOME_DE[c.biome[((z & 15) << 4) | (x & 15)]] : '?';
     const dir = ['Sueden (+Z)', 'Westen (-X)', 'Norden (-Z)', 'Osten (+X)'][facingFromVec(-Math.sin(p.yaw), -Math.cos(p.yaw))];
-    el.innerHTML = `SwissCraft (${Math.round(this.fps)} FPS)<br>XYZ: ${p.pos.x.toFixed(2)} / ${p.pos.y.toFixed(2)} / ${p.pos.z.toFixed(2)}<br>
+    el.innerHTML = `CubeCraft (${Math.round(this.fps)} FPS)<br>XYZ: ${p.pos.x.toFixed(2)} / ${p.pos.y.toFixed(2)} / ${p.pos.z.toFixed(2)}<br>
       Chunk: ${x >> 4} ${z >> 4} (${this.world.chunks.size} geladen)<br>Blickrichtung: ${dir}<br>Biom: ${biome}<br>
       Licht: Himmel ${l >> 4}, Block ${l & 15}<br>Zeit: Tag ${Math.floor(this.time / 24000) + 1}, ${(Math.floor((this.time % 24000) / 1000 + 6) % 24)}:00<br>
       Wesen: ${this.mobs.length}, Items: ${this.items.length}<br>Seed: ${this.meta.seed}`;
