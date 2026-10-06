@@ -209,6 +209,9 @@ class UI {
       h += `<div class="row"><div class="gtitle">Kreativ-Inventar</div><input id="csearch" placeholder="Suchen..." autocomplete="off"></div>
         <div class="cgrid" id="cgrid"></div><div class="gtitle">Schnellleiste (Item auf Raster ziehen = loeschen)</div>${grid('inv', 0, 9, 9)}`;
     }
+    if (type === 'inventory' || type === 'table') {
+      h += `<div class="rbook"><div class="gtitle">Rezeptbuch</div><div class="ghint">Klick = 1x craften, Shift+Klick = so viel wie moeglich</div><div class="rgrid" id="rgrid"></div></div>`;
+    }
     el.innerHTML = h;
     el.style.display = 'block';
     $('#overlay').style.display = 'block';
@@ -309,7 +312,7 @@ class UI {
     if (!this.screen || !from || !this.cursor || e.button !== 0) return;
     const el = document.elementFromPoint(e.clientX, e.clientY);
     const slot = el && el.closest('.slot');
-    if (!slot || slot === from || slot.dataset.c === 'result' || slot.dataset.c === 'creative') return;
+    if (!slot || slot === from || slot.dataset.c === 'result' || slot.dataset.c === 'creative' || slot.dataset.c === 'recipe') return;
     this.handleClick({ target: slot, button: 0, shiftKey: false, preventDefault() {} });
   }
 
@@ -335,6 +338,7 @@ class UI {
       return;
     }
     if (name === 'result') { this.takeCraft(shift); this.refresh(); return; }
+    if (name === 'recipe') { this.bookCraft(i, shift); this.refresh(); return; }
     const arr = this.container(name);
     if (name === 'furnace' && i === 2) {
       const out = arr[2];
@@ -414,6 +418,14 @@ class UI {
     const slot = e.target.closest('.slot');
     if (!slot) { this.tooltip.style.display = 'none'; return; }
     let s = null;
+    if (slot.dataset.c === 'recipe') {
+      const rc = RECIPES[+slot.dataset.i];
+      const names = {};
+      for (const opts of recipeNeeds(rc)) { const n = opts.length > 1 ? itemName(opts[0]).replace(/^(Eichen|Birken|Fichten)/, '') + ' (beliebig)' : itemName(opts[0]); names[n] = (names[n] || 0) + 1; }
+      this.tooltip.innerHTML = `${itemName(rc.out)}${rc.count > 1 ? ' x' + rc.count : ''}<br><small>braucht: ${Object.entries(names).map(([n, c]) => c + 'x ' + n).join(', ')}</small>`;
+      this.tooltip.style.display = 'block';
+      return;
+    }
     if (slot.dataset.c === 'creative') s = { id: +slot.dataset.i };
     else if (slot.dataset.c === 'result') s = this.craftResult();
     else { const arr = this.container(slot.dataset.c); s = arr && arr[+slot.dataset.i]; }
@@ -434,7 +446,7 @@ class UI {
     const el = $('#screen');
     for (const s of el.querySelectorAll('.slot')) {
       const name = s.dataset.c;
-      if (name === 'creative') continue;
+      if (name === 'creative' || name === 'recipe') continue;
       let st;
       if (name === 'result') st = this.craftResult();
       else st = this.container(name)[+s.dataset.i];
@@ -445,7 +457,44 @@ class UI {
     this.cursorEl.innerHTML = this.cursor ? this.stackHTML(this.cursor) : '';
     if (this.screen.type === 'furnace') this.updateFurnace();
     if (this.screen.type === 'inventory') this.drawPreview();
+    this.updateBook();
     this.updateHUD();
+  }
+
+  // Rezepte, die man mit dem aktuellen Inventar herstellen kann
+  updateBook() {
+    const g = $('#rgrid');
+    if (!g) return;
+    const inv = this.game.player.inv;
+    const seen = new Set();
+    let h = '', key = '';
+    RECIPES.forEach((r, i) => {
+      if (!recipeFits(r, this.craftW) || seen.has(r.out)) return;
+      if (!pickIngredients(r, inv)) return;
+      seen.add(r.out);
+      key += i + ',';
+      h += `<div class="slot" data-c="recipe" data-i="${i}">${this.stackHTML({ id: r.out, count: r.count })}</div>`;
+    });
+    if (g._k === key) return;
+    g._k = key;
+    g.innerHTML = h || '<div class="ghint">Sammle zuerst Materialien, z.B. Holz von einem Baum.</div>';
+  }
+
+  bookCraft(i, shift) {
+    const p = this.game.player;
+    const r = RECIPES[i];
+    let made = 0;
+    do {
+      const picks = pickIngredients(r, p.inv);
+      if (!picks) break;
+      for (const id of picks) {
+        p.removeItem(id, 1);
+        if (id === I.water_bucket || id === I.lava_bucket || id === I.milk_bucket) this.giveOrDrop({ id: I.bucket, count: 1 });
+      }
+      this.giveOrDrop({ id: r.out, count: r.count });
+      made++;
+    } while (shift && made < 64);
+    if (made) { this.game.sound('click'); this.game.ui.showHint(itemName(r.out) + ' hergestellt!'); }
   }
 
   updateFurnace() {

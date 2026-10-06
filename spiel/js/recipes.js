@@ -197,3 +197,29 @@ smelt('mutton', 'cooked_mutton');
 smelt('cactus', 'green_dye');
 
 function fuelValue(id) { return ITEMS[id] ? ITEMS[id].fuel || 0 : 0; }
+
+// ---------------------------------------------------------------- Rezeptbuch
+// Liste der Zutaten (eine Eintragung pro benoetigtem Item) und Groesse des Rezepts
+function recipeNeeds(r) {
+  if (r.type === 'shapeless') return r.ings;
+  const out = [];
+  for (const row of r.rows) for (const ch of row) if (ch !== ' ') out.push(r.key[ch]);
+  return out;
+}
+function recipeFits(r, w) {
+  if (r.type === 'shapeless') return r.ings.length <= w * w;
+  return r.rows.length <= w && Math.max(...r.rows.map(s => s.length)) <= w;
+}
+// Waehlt aus dem Inventar passende Zutaten aus; null wenn etwas fehlt
+function pickIngredients(r, inv) {
+  const have = {};
+  for (const s of inv) if (s) have[s.id] = (have[s.id] || 0) + s.count;
+  const picks = [];
+  for (const opts of recipeNeeds(r)) {
+    const id = opts.find(o => have[o] > 0);
+    if (id === undefined) return null;
+    have[id]--;
+    picks.push(id);
+  }
+  return picks;
+}
