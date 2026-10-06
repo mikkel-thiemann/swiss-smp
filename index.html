@@ -141,6 +141,17 @@
   }
 
   .knopf-crafting:hover { background: #3a87ad; }
+
+  .knopf-spiel {
+    background: #c27a12;
+    border-color: #7d4d08;
+    box-shadow: 0 6px 0 #5a3705;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .knopf-spiel:hover { background: #db8d1c; }
+  .knopf-spiel:active { box-shadow: 0 1px 0 #5a3705; }
   .knopf-crafting:active { box-shadow: 0 1px 0 #143240; }
 
   .legende {
@@ -490,6 +501,7 @@
     <button class="knopf" onclick="bereichZeigen('infos')">Infos über SwissSMP</button>
     <button class="knopf knopf-regeln" onclick="bereichZeigen('regeln')">Regeln</button>
     <button class="knopf knopf-crafting" onclick="bereichZeigen('crafting')">Easy Crafting</button>
+    <a class="knopf knopf-spiel" href="spiel/index.html">CubeCraft spielen</a>
   </div>
 
   <div id="schleier" onclick="alleSchliessen()"></div>
