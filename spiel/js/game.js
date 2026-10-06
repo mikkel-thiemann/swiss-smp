@@ -143,6 +143,8 @@ class Game {
     document.addEventListener('contextmenu', e => { if (this.running) e.preventDefault(); });
     document.addEventListener('mousemove', e => {
       if (!this.locked()) return;
+      // Manche Browser melden beim Klicken riesige Sprung-Werte -> ignorieren, sonst springt die Kamera
+      if (Math.abs(e.movementX) > 250 || Math.abs(e.movementY) > 250) return;
       const s = 0.0022 * this.opts.sens;
       const p = this.player;
       p.yaw -= e.movementX * s;
@@ -932,7 +934,10 @@ class Game {
         p.damageHeld(1, this); return;
       }
     }
-    if (!held) return;
+    if (!held) {
+      if (!repeat && hit) this.ui.showHint('Deine Hand ist leer: waehle einen Block in der Schnellleiste (Taste 1-9 oder Mausrad)');
+      return;
+    }
     const it = ITEMS[held.id];
     // 3. Essen / Trinken
     if ((it.food && (p.food < 20 || p.mode === 'creative' || held.id === I.golden_apple)) || it.drink) {
@@ -963,7 +968,10 @@ class Game {
       }
       return;
     }
-    if (!hit) return;
+    if (!hit) {
+      if (!repeat && (ITEMS[held.id].block !== null || ITEMS[held.id].places)) this.ui.showHint('Ziele mit dem Kreuz auf einen Block in deiner Naehe');
+      return;
+    }
     if (held.id === I.water_bucket || held.id === I.lava_bucket) {
       const tgt = BLOCKS[hit.id].replaceable ? hit : { x: hit.x + hit.nx, y: hit.y + hit.ny, z: hit.z + hit.nz };
       const cur = w.getBlock(tgt.x, tgt.y, tgt.z);
@@ -1004,7 +1012,8 @@ class Game {
       p.consumeHeld(1);
       this.renderer.swing = 1;
       this.sound('place', blockSoundMat(placeId));
-    }
+    } else if (!repeat) this.ui.showHint(this.placeFail || 'Hier kann der Block nicht hin');
+    this.placeFail = null;
   }
 
   placeBlock(hit, id) {
@@ -1061,7 +1070,7 @@ class Game {
     for (const bx of boxes) {
       const x0 = x + bx[0], y0 = y + bx[1], z0 = z + bx[2], x1 = x + bx[3], y1 = y + bx[4], z1 = z + bx[5];
       const ov = (e) => e.pos.x + e.w > x0 && e.pos.x - e.w < x1 && e.pos.y + e.h > y0 && e.pos.y < y1 && e.pos.z + e.w > z0 && e.pos.z - e.w < z1;
-      if (ov(p)) return false;
+      if (ov(p)) { this.placeFail = 'Da stehst du selbst - schau etwas weiter weg'; return false; }
       for (const m of this.mobs) if (!m.dead && ov(m)) return false;
     }
     if (b.shape === 'door') {
