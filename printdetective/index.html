@@ -576,13 +576,87 @@
   }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+  /* ---------- Obere Leiste ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin: -32px calc(-1 * clamp(16px, 4vw, 48px)) 28px;
+    padding: 14px clamp(16px, 4vw, 48px);
+    background: rgba(7, 8, 18, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .next-step { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 14px; color: var(--muted); }
+  .next-step strong { color: var(--text); }
+  .next-step .n {
+    width: 26px; height: 26px; flex: none; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 13px;
+    background: rgba(61, 224, 255, 0.14); color: var(--cyan);
+    box-shadow: 0 0 14px rgba(61, 224, 255, 0.45);
+  }
+  .topbar-actions { display: flex; gap: 8px; flex: none; }
+  .btn-upload { padding: 12px 20px; font-size: 15px; }
+
+  /* ---------- Anleitung ---------- */
+  .guide { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; counter-reset: g; }
+  .gstep {
+    position: relative;
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(7, 8, 18, 0.45);
+  }
+  .gstep .n {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 17px;
+    background: var(--surface-2); color: var(--muted);
+    border: 1px solid var(--border-strong);
+  }
+  .gstep h3 { font-size: 16px; }
+  .gstep p { font-size: 13.5px; color: var(--muted); flex: 1; }
+  .gstep .btn { align-self: flex-start; }
+  .gstep.current { border-color: rgba(61, 224, 255, 0.6); box-shadow: 0 0 0 1px rgba(61, 224, 255, 0.2), 0 0 30px -6px rgba(61, 224, 255, 0.5); }
+  .gstep.current .n { background: var(--grad); color: #fff; border: none; box-shadow: 0 0 18px rgba(124, 110, 255, 0.7); }
+  .gstep.done .n { background: rgba(46, 242, 164, 0.15); color: var(--green); border-color: var(--green); box-shadow: 0 0 14px rgba(46, 242, 164, 0.5); }
+  .gstep .tag { position: absolute; top: 18px; right: 18px; }
+
+  .guide-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .guide-list li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .guide-list .n { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-family: "Space Grotesk", sans-serif; font-weight: 700; background: var(--grad); box-shadow: 0 0 16px rgba(124, 110, 255, 0.6); }
+  .guide-list strong { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .guide-list p { font-size: 14px; color: var(--muted); }
+  .legend { display: grid; gap: 8px; margin-top: 10px; }
+  .legend div { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -12px 0 22px; }
+  .flow span { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; }
+  .flow b { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--grad); font-size: 12px; }
+  .flow i { color: var(--faint); font-style: normal; }
+
+  .demo-banner {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 18px; margin-bottom: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(61, 224, 255, 0.35);
+    background: linear-gradient(135deg, rgba(61, 224, 255, 0.08), rgba(155, 92, 255, 0.08));
+    font-size: 14px;
+  }
+  .dropzone { padding: 28px 18px; }
+  .dropzone .big-icon { width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; background: var(--grad); box-shadow: 0 0 26px rgba(124, 110, 255, 0.6); margin-bottom: 4px; }
+  .dropzone .big-icon svg { width: 28px; height: 28px; color: #fff; }
+  .dropzone strong { font-size: 16px; }
+  .dropzone .btn { margin-top: 6px; pointer-events: none; }
+
   .section-gap { margin-top: 18px; }
   .hidden { display: none !important; }
 
   /* ---------- Responsive ---------- */
   @media (max-width: 1180px) {
     .scanner { grid-template-columns: 1fr; }
-    .roadmap { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .roadmap, .guide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 900px) {
     .app { grid-template-columns: 1fr; }
@@ -599,6 +673,7 @@
     .nav button { flex-direction: column; gap: 3px; padding: 8px 4px; font-size: 10.5px; flex: 1; align-items: center; text-align: center; }
     .nav button.active { box-shadow: inset 0 3px 0 var(--violet); }
     .main { padding-bottom: 100px; padding-top: 22px; }
+    .topbar { margin-top: -22px; }
     .hero { grid-template-columns: 1fr; padding: 24px; }
     .hero-art { height: 200px; order: -1; }
     .grid-3, .options { grid-template-columns: 1fr; }
@@ -606,7 +681,10 @@
     .toast { bottom: 90px; }
   }
   @media (max-width: 640px) {
-    .grid-2, .roadmap { grid-template-columns: 1fr; }
+    .grid-2, .roadmap, .guide { grid-template-columns: 1fr; }
+    .next-step { display: none; }
+    .topbar-actions { width: 100%; }
+    .topbar-actions .btn-upload { flex: 1; }
     .spec-list { grid-template-columns: 1fr 1fr; }
     .modal { padding: 20px; }
     .row { flex-direction: column; }
@@ -680,6 +758,14 @@
 
   <main class="main">
 
+    <div class="topbar">
+      <div class="next-step" id="next-step"></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" data-guide><svg><use href="#i-info"/></svg>Anleitung</button>
+        <button class="btn btn-primary btn-upload" data-upload><svg><use href="#i-upload"/></svg>3D-Modell hochladen</button>
+      </div>
+    </div>
+
     <!-- ===== Übersicht ===== -->
     <section class="view active" id="view-home">
       <div class="card hero">
@@ -688,8 +774,8 @@
           <h2 class="section-gap">Weisst du schon <span>vor dem Drucken</span>, ob du alles hast?</h2>
           <p>PrintDetective prüft deine Modelle: Passt es in den Druckraum? Reicht das Filament? Fehlen Schrauben oder Magnete? Und wenn etwas fehlt, suchen wir nach Lösungen.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" data-go="scanner"><svg><use href="#i-scan"/></svg>Modell scannen</button>
-            <button class="btn" data-go="inventory"><svg><use href="#i-box"/></svg>Mein 3D-Lager</button>
+            <button class="btn btn-primary btn-upload" data-upload><svg><use href="#i-upload"/></svg>3D-Modell hochladen</button>
+            <button class="btn" data-guide><svg><use href="#i-info"/></svg>Anleitung ansehen</button>
           </div>
         </div>
         <div class="hero-art" aria-hidden="true">
@@ -726,6 +812,17 @@
             </g>
           </svg>
         </div>
+      </div>
+
+      <div class="card section-gap">
+        <div class="card-head">
+          <div>
+            <h2>So geht's – Schritt für Schritt</h2>
+            <p class="muted small">Mach die Schritte der Reihe nach. Der leuchtende Schritt ist als Nächstes dran.</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" data-guide>Ausführliche Anleitung</button>
+        </div>
+        <div class="guide" id="guide-steps"></div>
       </div>
 
       <div class="grid grid-3 section-gap">
@@ -804,8 +901,18 @@
         <div>
           <div class="eyebrow">Die wichtigste Funktion</div>
           <h1>Modell-Scanner</h1>
-          <p>Lade eine STL-Datei hoch oder füge einen Link von MakerWorld, Thingiverse oder Printables ein. PrintDetective untersucht das Modell und vergleicht es mit deinem Drucker und deinem Lager.</p>
+          <p>Lade dein 3D-Modell hoch. PrintDetective prüft, ob es in deinen Drucker passt, ob dein Filament reicht und ob Teile fehlen.</p>
         </div>
+      </div>
+      <div class="flow">
+        <span><b>1</b>3D-Modell hochladen</span><i>→</i>
+        <span><b>2</b>Grösse &amp; Filament ansehen</span><i>→</i>
+        <span><b>3</b>Teileliste einfügen</span><i>→</i>
+        <span><b>4</b>Fehlende Teile lösen</span>
+      </div>
+      <div class="demo-banner" id="demo-banner">
+        <span><strong>Das ist nur ein Beispiel-Modell.</strong> <span class="muted">Lade dein eigenes 3D-Modell hoch, um es zu prüfen.</span></span>
+        <button class="btn btn-primary btn-sm" data-upload><svg><use href="#i-upload"/></svg>3D-Modell hochladen</button>
       </div>
 
       <div class="scanner">
@@ -814,7 +921,7 @@
             <div class="viewer-empty" id="viewer-empty">3D-Vorschau wird geladen …</div>
             <div class="viewer-top">
               <div class="viewer-title">
-                <span class="faint small">Modell</span>
+                <span class="faint small" id="model-tag">Beispiel-Modell</span>
                 <strong id="model-name">Mini-Roboter «Bolt»</strong>
               </div>
               <span class="status ok" id="fit-badge">Passt in den Druckraum</span>
@@ -828,14 +935,16 @@
 
         <div class="grid" style="gap:18px">
           <div class="card">
-            <h2 style="margin-bottom:14px">Modell laden</h2>
+            <h2 style="margin-bottom:14px">1. 3D-Modell hochladen</h2>
             <label class="dropzone" id="dropzone">
-              <svg><use href="#i-upload"/></svg>
-              <strong>STL-Datei hierher ziehen</strong>
-              <span class="small muted">oder klicken zum Auswählen</span>
+              <span class="big-icon"><svg><use href="#i-upload"/></svg></span>
+              <strong>Datei hierher ziehen</strong>
+              <span class="small muted">oder auf den Knopf klicken</span>
+              <span class="btn btn-primary">Datei auswählen</span>
+              <span class="small faint">Format: STL-Datei (.stl)</span>
               <input type="file" id="file-input" accept=".stl" hidden>
             </label>
-            <div class="or">oder Link einfügen</div>
+            <div class="or">oder Link einfügen (kommt bald)</div>
             <div class="row">
               <input class="input" id="link-input" placeholder="https://makerworld.com/…">
               <button class="btn" id="link-btn"><svg><use href="#i-search"/></svg>Prüfen</button>
@@ -845,7 +954,7 @@
 
           <div class="card">
             <div class="card-head" style="margin-bottom:12px">
-              <h2>Analyse</h2>
+              <h2>2. Analyse</h2>
               <span class="chip" id="analysis-printer">–</span>
             </div>
             <div class="checks" id="checks"></div>
@@ -853,7 +962,7 @@
 
           <div class="card">
             <div class="card-head" style="margin-bottom:10px">
-              <h2>Teileliste</h2>
+              <h2>3. Teileliste</h2>
               <span class="badge-auto text">aus Beschreibung</span>
             </div>
             <p class="small muted" style="margin-bottom:10px">Ob Schrauben gebraucht werden, steht nicht in der STL-Datei. Füge die Teileliste aus der Anleitung ein, z.&nbsp;B. «4x M3-Schraube».</p>
@@ -979,6 +1088,36 @@
 
 <div class="modal-bg" id="project-modal">
   <div class="modal" role="dialog" aria-modal="true" id="project-modal-body"></div>
+</div>
+
+<div class="modal-bg" id="guide-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">Anleitung</div>
+        <h2 id="guide-title" class="section-gap">So benutzt du PrintDetective</h2>
+      </div>
+      <button class="icon-btn" data-close aria-label="Schliessen">×</button>
+    </div>
+    <ol class="guide-list">
+      <li><span class="n">1</span><div><strong>Drucker einrichten</strong><p>Klicke im Menü auf <b>Drucker</b> und wähle deinen 3D-Drucker aus, z.&nbsp;B. den Anycubic Kobra S1. Dann kennt die App die Grösse deines Druckraums.</p></div></li>
+      <li><span class="n">2</span><div><strong>3D-Modell herunterladen</strong><p>Suche ein Modell auf MakerWorld, Printables oder Thingiverse. Klicke dort auf <b>Download</b> und speichere die <b>STL-Datei</b> auf deinem Computer.</p></div></li>
+      <li><span class="n">3</span><div><strong>3D-Modell hochladen</strong><p>Klicke oben auf den Knopf <b>3D-Modell hochladen</b> und wähle die STL-Datei aus. Oder ziehe die Datei einfach in das Feld im Scanner.</p></div></li>
+      <li><span class="n">4</span><div><strong>Modell ansehen</strong><p>Drehe das Modell, indem du mit der Maus ziehst. Mit dem Mausrad zoomst du. Das Gitter zeigt den Druckraum deines Druckers.</p></div></li>
+      <li><span class="n">5</span><div><strong>Ergebnis lesen</strong><p>Unter <b>Analyse</b> siehst du, ob das Modell passt und ob dein Filament reicht. Achte auf die Farben:</p>
+        <div class="legend">
+          <div><span class="status ok">Grün</span>Alles gut, du kannst loslegen.</div>
+          <div><span class="status warn">Gelb</span>Aufpassen, z.&nbsp;B. Modell drehen oder unsicher.</div>
+          <div><span class="status bad">Rot</span>Problem: zu gross oder es fehlt etwas.</div>
+        </div></div></li>
+      <li><span class="n">6</span><div><strong>Teileliste prüfen</strong><p>Braucht das Modell Schrauben oder Magnete? Das steht in der Anleitung des Modells. Kopiere die Teileliste in das Feld <b>Teileliste</b> und klicke auf <b>Mit Lager vergleichen</b>.</p></div></li>
+      <li><span class="n">7</span><div><strong>Lager aktuell halten</strong><p>Trage unter <b>3D-Lager</b> ein, was du zu Hause hast. Mit <b>+</b> und <b>−</b> änderst du die Menge.</p></div></li>
+    </ol>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close>Schliessen</button>
+      <button class="btn btn-primary" data-upload><svg><use href="#i-upload"/></svg>Jetzt 3D-Modell hochladen</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1133,6 +1272,12 @@ document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", 
 function openModal(id) { $("#" + id).classList.add("open"); }
 function closeModal(el) { el.closest(".modal-bg").classList.remove("open"); }
 document.addEventListener("click", e => {
+  if (e.target.closest("[data-upload]")) {
+    document.querySelectorAll(".modal-bg.open").forEach(m => m.classList.remove("open"));
+    $("#file-input").click();
+    return;
+  }
+  if (e.target.closest("[data-guide]")) { openModal("guide-modal"); return; }
   if (e.target.matches("[data-close], [data-close] *")) closeModal(e.target);
   else if (e.target.classList.contains("modal-bg")) e.target.classList.remove("open");
 });
@@ -1434,6 +1579,8 @@ function renderMissing(missing, projectName) {
    Scanner: Analyse
    ========================================================= */
 let currentModel = null; // { name, dims:[x,y,z], volume (mm³) | null, demo }
+let userModelLoaded = false;
+let partsChecked = false;
 
 function fitCheck(dims, vol) {
   const direct = dims[0] <= vol[0] && dims[1] <= vol[1] && dims[2] <= vol[2];
@@ -1454,6 +1601,8 @@ function renderAnalysis() {
   const d = currentModel.dims;
   $("#viewer-dims").innerHTML = ["x", "y", "z"].map((k, i) => `<div class="dim ${k}"><small>${k.toUpperCase()}</small>${d[i].toFixed(1)} mm</div>`).join("");
   $("#model-name").textContent = currentModel.name;
+  $("#model-tag").textContent = currentModel.demo ? "Beispiel-Modell" : "Dein Modell";
+  $("#demo-banner").classList.toggle("hidden", !currentModel.demo);
 
   const rows = [];
   if (pr) {
@@ -1530,6 +1679,8 @@ $("#parts-btn").addEventListener("click", () => {
       ${rows.map(r => `<tr><td>${esc(r.spec)}</td><td class="num">${r.qty}</td><td>${r.missing ? `<span class="status bad">${r.have}</span>` : `<span class="status ok">${r.have}</span>`}</td></tr>`).join("")}
     </table>`;
   renderMissing(rows.filter(r => r.missing), currentModel && !currentModel.demo ? currentModel.name : null);
+  partsChecked = true;
+  renderGuide();
 });
 
 $("#link-btn").addEventListener("click", () => {
@@ -1685,7 +1836,9 @@ const viewer = {
     this.setModel(group, { name: name.replace(/\.stl$/i, ""), dims, volume: Math.abs(vol), demo: false });
     renderMissing([]);
     $("#parts-result").innerHTML = "";
-    toast(`${name} geladen`);
+    userModelLoaded = true;
+    renderGuide();
+    toast(`${name} geladen – schau dir jetzt die Analyse an`);
   }
 };
 
@@ -1712,13 +1865,14 @@ function parseSTL(buf) {
 
 function handleFile(file) {
   if (!file) return;
-  if (!/\.stl$/i.test(file.name)) { toast("Bitte eine STL-Datei wählen"); return; }
+  if (!/\.stl$/i.test(file.name)) { toast("Bitte eine STL-Datei wählen (Dateiname endet auf .stl)"); return; }
+  go("scanner");
   const reader = new FileReader();
   reader.onload = () => viewer.loadSTL(reader.result, file.name);
   reader.readAsArrayBuffer(file);
 }
 const dz = $("#dropzone");
-$("#file-input").addEventListener("change", e => handleFile(e.target.files[0]));
+$("#file-input").addEventListener("change", e => { handleFile(e.target.files[0]); e.target.value = ""; });
 ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("drag"); }));
 ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("drag"); }));
 dz.addEventListener("drop", e => handleFile(e.dataTransfer.files[0]));
@@ -1742,7 +1896,31 @@ function renderStats() {
   $("#side-status").textContent = pr ? "Bereit" : "Einrichten";
 }
 
+function renderGuide() {
+  const steps = [
+    { t: "Drucker einrichten", d: "Wähle deinen 3D-Drucker, damit die App den Druckraum kennt.", done: state.printers.length > 0, btn: `<button class="btn btn-sm" onclick="document.getElementById('add-printer').click()">Drucker wählen</button>` },
+    { t: "3D-Modell hochladen", d: "Lade die STL-Datei deines Modells hoch, z. B. von MakerWorld.", done: userModelLoaded, btn: `<button class="btn btn-primary btn-sm" data-upload>3D-Modell hochladen</button>` },
+    { t: "Teileliste prüfen", d: "Füge die Teileliste aus der Anleitung ein und vergleiche sie mit deinem Lager.", done: partsChecked, btn: `<button class="btn btn-sm" data-go-scanner>Zum Scanner</button>` },
+    { t: "Lager eintragen", d: "Trage ein, welches Filament, welche Schrauben und Magnete du hast.", optional: true, btn: `<button class="btn btn-sm" data-go-inventory>Zum 3D-Lager</button>` }
+  ];
+  const cur = steps.findIndex(s => !s.optional && !s.done);
+  $("#guide-steps").innerHTML = steps.map((s, i) => `
+    <div class="gstep ${s.done ? "done" : i === cur ? "current" : ""}">
+      <span class="tag">${s.done ? `<span class="status ok">Erledigt</span>` : i === cur ? `<span class="status info">Jetzt dran</span>` : s.optional ? `<span class="chip">Optional</span>` : ""}</span>
+      <div class="n">${s.done ? "✓" : i + 1}</div>
+      <h3>${s.t}</h3>
+      <p>${s.d}</p>
+      ${s.done ? "" : s.btn}
+    </div>`).join("");
+  $("#guide-steps").querySelectorAll("[data-go-scanner]").forEach(b => b.addEventListener("click", () => go("scanner")));
+  $("#guide-steps").querySelectorAll("[data-go-inventory]").forEach(b => b.addEventListener("click", () => go("inventory")));
+  $("#next-step").innerHTML = cur === -1
+    ? `<span class="n">✓</span><span><strong>Super!</strong> Du hast alle Schritte gemacht.</span>`
+    : `<span class="n">${cur + 1}</span><span>Nächster Schritt: <strong>${steps[cur].t}</strong></span>`;
+}
+
 function renderAll() {
+  renderGuide();
   renderStats();
   renderPrinters();
   renderInventory();
