@@ -648,6 +648,13 @@
   .dropzone .big-icon svg { width: 28px; height: 28px; color: #fff; }
   .dropzone strong { font-size: 16px; }
   .dz-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 6px 0 2px; }
+  .load-log { margin-top: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7, 8, 18, 0.6); font-size: 13px; display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow: auto; }
+  .load-log div { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; }
+  .load-log .ok { color: var(--green); }
+  .load-log .bad { color: var(--red); }
+  .load-log .busy { color: var(--cyan); }
+  .load-log span:last-child { color: var(--muted); overflow-wrap: anywhere; }
+  .load-log strong { color: var(--text); font-weight: 600; }
   .dropzone .dz-buttons svg { width: 18px; height: 18px; color: inherit; }
   #part-summary { white-space: nowrap; flex: none; }
   .part-rows { display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow: auto; }
@@ -713,6 +720,15 @@
 </style>
 </head>
 <body>
+<div id="no-js" style="position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:#070812;color:#eef0ff;font:16px/1.5 system-ui,sans-serif;text-align:center">
+  <div style="max-width:460px">
+    <div style="font-size:42px">⚠️</div>
+    <h2 style="margin:8px 0 10px">Die Seite kann hier nicht starten</h2>
+    <p style="color:#9aa0c7">Du siehst die Datei wahrscheinlich in einer <b>Vorschau</b> (z.&nbsp;B. «Dateien»-App, Mail oder Chat). Dort laufen keine Programme.</p>
+    <p style="color:#9aa0c7;margin-top:10px">Öffne die Datei <b>in einem richtigen Browser</b>: Chrome, Edge, Firefox oder Safari. Am Computer: Rechtsklick → «Öffnen mit» → Browser.</p>
+  </div>
+</div>
+<script>document.getElementById("no-js").remove();</script>
 
 <!-- SVG-Symbole -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -972,6 +988,7 @@
               </div>
               <span class="small faint">Erlaubt: STL, 3MF, OBJ oder ZIP – auch mehrere auf einmal</span>
             </div>
+            <div class="load-log hidden" id="load-log"></div>
             <div class="or">oder Link einfügen (kommt bald)</div>
             <div class="row">
               <input class="input" id="link-input" placeholder="https://makerworld.com/…">
@@ -1148,7 +1165,7 @@
   </div>
 </div>
 
-<input type="file" id="file-input" accept=".stl,.3mf,.obj,.zip" multiple hidden>
+<input type="file" id="file-input" multiple hidden>
 <input type="file" id="folder-input" webkitdirectory directory multiple hidden>
 
 <div class="toast" id="toast"></div>
@@ -2366,7 +2383,11 @@ document.addEventListener("click", e => {
   }
   if (e.target.closest("[data-upload-folder]")) {
     document.querySelectorAll(".modal-bg.open").forEach(m => m.classList.remove("open"));
-    $("#folder-input").click();
+    if ("webkitdirectory" in $("#folder-input") && !/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) $("#folder-input").click();
+    else {
+      toast("Dieses Gerät kann keine Ordner auswählen. Öffne den Ordner und markiere alle Dateien.");
+      $("#file-input").click();
+    }
     return;
   }
   if (e.target.closest("[data-guide]")) { openModal("guide-modal"); return; }
@@ -2794,11 +2815,20 @@ const viewer = {
   init() {
     if (this.ready) return;
     const host = $("#viewer");
-    if (!window.THREE) { $("#viewer-empty").textContent = "Die 3D-Vorschau konnte nicht geladen werden (keine Internetverbindung?)."; return; }
+    if (!window.THREE) { this.ready = true; this.failed = true; $("#viewer-empty").textContent = "Die 3D-Vorschau konnte nicht gestartet werden. Die Analyse funktioniert trotzdem."; this.loadDemo(); return; }
     this.ready = true;
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (e) {
+      // Gerät kann kein 3D (WebGL): Analyse funktioniert trotzdem
+      this.failed = true;
+      $("#viewer-empty").textContent = "Dein Gerät oder Browser kann keine 3D-Grafik (WebGL) anzeigen. Die Analyse rechts funktioniert trotzdem.";
+      if (this.pending) { const p = this.pending; this.pending = null; p(); } else this.loadDemo();
+      return;
+    }
     $("#viewer-empty").remove();
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     host.prepend(renderer.domElement);
     const scene = new THREE.Scene();
@@ -2867,6 +2897,12 @@ const viewer = {
   },
   loadDemo() {
     if (!this.ready) { this.pending = () => this.loadDemo(); return; }
+    if (this.failed) {
+      currentModel = { name: PROJECTS[0].name, dims: [104, 49, 155], volume: 165000, demo: true };
+      renderAnalysis();
+      renderMissing(projectCheck(PROJECTS[0]).missing, PROJECTS[0].name);
+      return;
+    }
     const body = new THREE.MeshStandardMaterial({ color: 0x3b5bdb, metalness: 0.25, roughness: 0.45 });
     const dark = new THREE.MeshStandardMaterial({ color: 0x1b1f3d, metalness: 0.3, roughness: 0.6 });
     const glow = new THREE.MeshStandardMaterial({ color: 0x3de0ff, emissive: 0x3de0ff, emissiveIntensity: 1.4 });
@@ -2902,6 +2938,8 @@ const viewer = {
   },
   showPart(part) {
     if (!this.ready) { this.pending = () => this.showPart(part); return; }
+    const info = { name: part.name, dims: part.dims, volume: part.volume, demo: false };
+    if (this.failed) { currentModel = info; renderAnalysis(); return; }
     const { pos, min, max } = part;
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(pos.slice(), 3));
@@ -2913,7 +2951,7 @@ const viewer = {
     if (pos.length < 9 * 300000) {
       group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: 0x9b5cff, transparent: true, opacity: 0.35 })));
     }
-    this.setModel(group, { name: part.name, dims: part.dims, volume: part.volume, demo: false });
+    this.setModel(group, info);
   }
 };
 
@@ -2943,9 +2981,11 @@ function makePart(name, pos) {
 
 function parseSTL(buf) {
   const dv = new DataView(buf);
-  if (buf.byteLength >= 84) {
-    const n = dv.getUint32(80, true);
-    if (84 + n * 50 === buf.byteLength) {
+  const head = new TextDecoder().decode(new Uint8Array(buf, 0, Math.min(buf.byteLength, 1000)));
+  const looksAscii = /^\s*solid/.test(head) && /facet|vertex/.test(head);
+  if (buf.byteLength >= 84 && !looksAscii) {
+    const n = Math.min(dv.getUint32(80, true), Math.floor((buf.byteLength - 84) / 50));
+    if (n > 0) {
       const out = new Float32Array(n * 9);
       for (let i = 0; i < n; i++) {
         const o = 84 + i * 50 + 12;
@@ -3084,38 +3124,65 @@ async function parseModelFile(name, buf) {
   return [];
 }
 
+function logLine(cls, icon, html) {
+  const log = $("#load-log");
+  log.classList.remove("hidden");
+  const row = document.createElement("div");
+  row.innerHTML = `<span class="${cls}">${icon}</span><span>${html}</span>`;
+  log.appendChild(row);
+  log.scrollTop = log.scrollHeight;
+  return row;
+}
+const mb = n => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+const nextFrame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+
 async function loadFiles(fileList) {
-  const all = [...fileList];
+  const all = [...(fileList || [])];
+  if (!all.length) return;
+  go("scanner");
+  $("#load-log").innerHTML = "";
   const files = all.filter(f => ANY_EXT.test(f.name));
+  all.filter(f => !ANY_EXT.test(f.name)).slice(0, 5).forEach(f =>
+    logLine("bad", "–", `<strong>${esc(f.name)}</strong> übersprungen (kein 3D-Modell)`));
   if (!files.length) {
-    toast(all.length
-      ? "Keine 3D-Modelle gefunden. Erlaubt sind STL, 3MF, OBJ oder ZIP."
-      : "Der Ordner ist leer.");
+    logLine("bad", "✗", `Keine 3D-Modelle gefunden. Erlaubt sind Dateien, die auf <strong>.stl</strong>, <strong>.3mf</strong>, <strong>.obj</strong> oder <strong>.zip</strong> enden.`);
+    toast("Keine 3D-Modelle gefunden");
     return;
   }
-  go("scanner");
-  toast(`Lade ${files.length} ${files.length === 1 ? "Datei" : "Dateien"} …`);
-  const parts = [], failed = [];
+  const parts = [];
   for (const f of files.slice(0, 80)) {
+    const row = logLine("busy", "⏳", `<strong>${esc(f.name)}</strong> (${mb(f.size)}) wird gelesen …`);
+    await nextFrame();
     try {
-      const got = (await parseModelFile(f.name, await f.arrayBuffer())).filter(Boolean);
-      if (got.length) parts.push(...got); else failed.push(f.name);
+      const buf = await readFile(f);
+      const got = (await parseModelFile(f.name, buf)).filter(Boolean);
+      if (!got.length) throw new Error("keine 3D-Daten gefunden");
+      parts.push(...got);
+      row.innerHTML = `<span class="ok">✓</span><span><strong>${esc(f.name)}</strong> – ${got.length} ${got.length === 1 ? "Teil" : "Teile"}</span>`;
     } catch (e) {
       console.warn(f.name, e);
-      failed.push(f.name);
+      row.innerHTML = `<span class="bad">✗</span><span><strong>${esc(f.name)}</strong> – Fehler: ${esc(e && e.message || e)}</span>`;
     }
   }
-  if (!parts.length) {
-    toast("Die Datei konnte nicht gelesen werden. Ist es ein gültiges 3D-Modell?");
-    return;
+  if (!parts.length) { toast("Die Dateien konnten nicht gelesen werden – siehe Liste"); return; }
+  try {
+    loadedParts = parts;
+    selectPart(0);
+    renderMissing([]);
+    $("#parts-result").innerHTML = "";
+    userModelLoaded = true;
+    renderGuide();
+    toast(`${parts.length} ${parts.length === 1 ? "Teil" : "Teile"} geladen`);
+  } catch (e) {
+    console.error(e);
+    logLine("bad", "✗", `Anzeige-Fehler: ${esc(e.message || e)}`);
   }
-  loadedParts = parts;
-  selectPart(0);
-  renderMissing([]);
-  $("#parts-result").innerHTML = "";
-  userModelLoaded = true;
-  renderGuide();
-  toast(`${parts.length} ${parts.length === 1 ? "Teil" : "Teile"} geladen${failed.length ? ` · ${failed.length} Datei(en) nicht lesbar` : ""}`);
+}
+
+/* Datei lesen – mit Rückfall für ältere Browser */
+function readFile(f) {
+  if (f.arrayBuffer) return f.arrayBuffer();
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsArrayBuffer(f); });
 }
 
 function selectPart(i) {
@@ -3231,6 +3298,9 @@ function renderAll() {
   renderPartList();
   if (currentModel && currentModel.demo) renderMissing(projectCheck(PROJECTS[0]).missing, PROJECTS[0].name);
 }
+
+window.addEventListener("error", e => toast("Fehler: " + (e.message || "unbekannt")));
+window.addEventListener("unhandledrejection", e => toast("Fehler: " + ((e.reason && e.reason.message) || e.reason || "unbekannt")));
 
 renderAll();
 if (!state.onboarded) { renderPicker(); openModal("onboarding"); }
