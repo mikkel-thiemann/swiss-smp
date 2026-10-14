@@ -132,15 +132,24 @@ class Game {
       this.audio.init();
       if (!this.running) return;
       if (!this.locked()) { if (!this.ui.isOpen && !this.chatOpen && !this.dead()) this.lock(); return; }
-      if (e.button === 0) { this.mouse.left = true; this.onLeftDown(); }
-      if (e.button === 2) { this.mouse.right = true; this.onRightDown(); }
+      // Mac: Ctrl+Klick zaehlt als Rechtsklick
+      const right = e.button === 2 || (e.button === 0 && (e.ctrlKey || e.metaKey));
+      if (e.button === 2) this.sawRight = true;
+      if (right) { this.mouse.right = true; this.ctrlRight = e.button === 0; this.rightAt = performance.now(); this.onRightDown(); }
+      else if (e.button === 0) { this.mouse.left = true; this.onLeftDown(); }
       if (e.button === 1) this.pickBlock();
     });
     document.addEventListener('mouseup', e => {
+      if (e.button === 0 && this.ctrlRight) { this.ctrlRight = false; this.mouse.right = false; this.onRightUp(); return; }
       if (e.button === 0) { this.mouse.left = false; this.breaking = null; }
       if (e.button === 2) { this.mouse.right = false; this.onRightUp(); }
     });
-    document.addEventListener('contextmenu', e => { if (this.running) e.preventDefault(); });
+    document.addEventListener('contextmenu', e => {
+      if (!this.running) return;
+      e.preventDefault();
+      // Falls ein Browser den Rechtsklick nur als Kontextmenue meldet: trotzdem bauen
+      if (!this.sawRight && this.locked() && !this.ui.isOpen && performance.now() - (this.rightAt || 0) > 300) { this.rightAt = performance.now(); this.onRightDown(); }
+    });
     document.addEventListener('mousemove', e => {
       if (!this.locked()) return;
       // Manche Browser melden beim Klicken riesige Sprung-Werte -> ignorieren, sonst springt die Kamera
@@ -205,6 +214,12 @@ class Game {
     if (down && code === 'Escape' && this.noLock) { this.pause(); return; }
     const wasDown = this.keys[code];
     this.keys[code] = down;
+    // Taste R = Bauen / Benutzen (Alternative zum Rechtsklick)
+    if (code === 'KeyR') {
+      if (down && !wasDown) { this.mouse.right = true; this.onRightDown(); }
+      if (!down) { this.mouse.right = false; this.onRightUp(); }
+      return;
+    }
     if (!down) return;
     const p = this.player;
     if (code.startsWith('Digit')) { const n = +code.slice(5); if (n >= 1 && n <= 9) { p.selected = n - 1; this.ui.showItemName(p.held()); } }
@@ -335,6 +350,7 @@ class Game {
         this.loading = false;
         hideMenus();
         if (p.mode === 'survival') this.ui.toast('Tipp: Linke Maustaste GEDRUECKT HALTEN, um Bloecke abzubauen');
+        this.ui.toast('Tipp: Rechtsklick oder Taste R = Block setzen / essen / benutzen');
         showMenu('clicktoplay');
         this.paused = true;
       }
